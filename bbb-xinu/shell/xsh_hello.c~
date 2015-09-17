@@ -1,17 +1,15 @@
 /* xsh_hello.c - xsh_hello */
 
-#include <xinu.h>
-#include <string.h>
+//#include <xinu.h>
 #include <stdio.h>
-
+#include <string.h>
 /*------------------------------------------------------------------------
- * xsh_hello - prints the welcome command
+ * xsh_hello - prints the welcome message
  *------------------------------------------------------------------------
  */
 shellcmd xsh_hello(int nargs, char *args[]) {
 
 	/* Output info for '--help' argument */
-
 	if (nargs == 2 && strncmp(args[1], "--help", 7) == 0) 
 	{
 		printf("Usage: %s\n\n", args[0]);
