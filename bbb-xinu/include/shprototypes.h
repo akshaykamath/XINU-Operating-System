@@ -75,3 +75,6 @@ extern	shellcmd  xsh_help	(int32, char *[]);
 
 /* in file xsh_hello.c */
 extern	shellcmd  xsh_hello	(int32, char *[]);
+
+/* in file xsh_reset.c */
+extern	shellcmd  xsh_reset	(int32, char *[]);
