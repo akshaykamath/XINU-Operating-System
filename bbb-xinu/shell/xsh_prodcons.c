@@ -8,7 +8,6 @@ shellcmd xsh_prodcons(int nargs, char *args[])
       //Argument verifications and validations
 
       int count = 2000;             //local varible to hold count
-    	//check args[1] if present assign value to count
  	/* Output info for '--help' argument */
 	if (nargs == 2 && strncmp(args[1], "--help", 7) == 0) 
 	{
@@ -28,20 +27,17 @@ shellcmd xsh_prodcons(int nargs, char *args[])
 		return 1;
 	}
 
-	/* If argument count is less than 2, then there are too few arguments*/
+	/* If argument count is equal to 2, then assign args[1] to count variable */
 	if (nargs == 2) 
 	{
-		//To do for more than one digit count
 		count =  atoi(args[1]);
 	}
 	
       //create the process producer and consumer and put them in ready queue.
       //Look at the definitions of function create and resume in exinu/system folder for reference.  
-	sid32 produced,consumed;
-	consumed = semcreate(0);
-	produced = semcreate(1);    
-      resume( create(producer, 1024, 20, "producer", 3, count, consumed, produced) );
-      resume( create(consumer, 1024, 20, "consumer", 3, count, consumed, produced) );
-	printf("Count is %d", count);
+	
+      resume( create(producer, 1024, 20, "producer", 3, count) );
+      resume( create(consumer, 1024, 20, "consumer", 3, count) );
+      
 	
 }

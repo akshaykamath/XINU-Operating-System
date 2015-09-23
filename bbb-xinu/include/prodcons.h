@@ -6,5 +6,5 @@
 extern int n; /*this is just declaration*/
 
 /*function Prototype*/
-void consumer(int count, sid32 consumed, sid32 produced);
-void producer(int count, sid32 consumed, sid32 produced);
+void consumer(int count);
+void producer(int count);

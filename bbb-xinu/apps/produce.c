@@ -1,16 +1,14 @@
 #include <prodcons.h>
 
- void producer(int count, sid32 consumed, sid32 produced)
+ void producer(int count)
  {
       //Code to produce values less than equal to count, 
 	int i;
-	n = 0;
+	//n = 0;
 	for(i = 1; i <= count; i++)
 	{
-		wait(consumed);
-		n++;
+		n = i;
 		printf("produced: %d \n",n);
-		signal(produced);
 	}
  }
 
