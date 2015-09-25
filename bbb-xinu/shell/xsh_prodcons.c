@@ -51,6 +51,6 @@ shellcmd xsh_prodcons(int nargs, char *args[])
       //create the process producer and consumer and put them in ready queue.
       //Look at the definitions of function create and resume in exinu/system folder for reference.  
 	
-      resume( create(producer, 1024, 20, "producer", 3, count) );
-      resume( create(consumer, 1024, 20, "consumer", 3, count) );
+      resume( create(producer, 1024, 20, "producer", 1, count) );
+      resume( create(consumer, 1024, 20, "consumer", 1, count) );
 }
