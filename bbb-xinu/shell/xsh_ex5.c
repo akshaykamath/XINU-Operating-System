@@ -50,15 +50,15 @@ sid32 produced
 )
 {
 int32 i;
-
+int n = 1;
 int j;
-for( i=1 ; i<=2000 ; i++ ) {
+for( i=1 ; i<=30 ; i++ ) {
 
 wait(consumed);
 
 for (j = 1; j <= 15; j++)
 {
-	buffer[j] = i;
+	buffer[j] = n++;
 	printf("produced: %d \n", buffer[j]);		
 }
 
@@ -75,13 +75,22 @@ sid32 produced
 )
 {
 int i;
+int maxLimitReached = 0;
+while (1){
+	wait(produced);
 
-wait(produced);
-for(i = 1; i<=15;i++)
-{
-	printf("consumed: %d \n", buffer[i]);
+	for(i = 1; i<=15;i++)
+	{
+		printf("consumed: %d \n", buffer[i]);
+		if (buffer[i] == 30){
+			maxLimitReached = 1;
+			break;
+		}
+	}
+	signal(consumed);
+	if(maxLimitReached == 1){
+		break;
+	}
 }
-
-signal(consumed);
 
 }
