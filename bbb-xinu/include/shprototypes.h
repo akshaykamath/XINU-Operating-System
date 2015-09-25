@@ -78,3 +78,6 @@ extern	shellcmd  xsh_hello	(int32, char *[]);
 
 /* in file xsh_prodcons.c */
 extern	shellcmd  xsh_prodcons	(int32, char *[]);
+
+/* in file xsh_ex5.c */
+extern	shellcmd  xsh_ex5	(int32, char *[]);
