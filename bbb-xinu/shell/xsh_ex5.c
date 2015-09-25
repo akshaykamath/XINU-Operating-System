@@ -34,8 +34,9 @@ shellcmd xsh_ex5(int nargs, char *args[]) {
 	sid32 produced, consumed;
 	consumed = semcreate(0);
 	produced = semcreate(1);
-	resume( create(cons2, 1024, 20, "cons", 2, consumed, produced) );
-	resume( create(prod2, 1024, 20, "prod", 2, consumed, produced) );	
+	
+	resume( create(prod2, 1024, 20, "prod", 2, consumed, produced) );
+	resume( create(cons2, 1024, 20, "cons", 2, consumed, produced) );	
 	
 	return 0;
 }
@@ -56,7 +57,7 @@ for( i=1 ; i <= n ; i++ ) {
 
 wait(consumed);
 
-for (j = 1; j <= 15; j++)
+for (j = 0; j < 15; j++)
 {
 	buffer[j] = n++;
 	printf("produced: %d \n", buffer[j]);		
@@ -79,7 +80,7 @@ int maxLimitReached = 0;
 while (1){
 	wait(produced);
 
-	for(i = 1; i<=15;i++)
+	for(i = 0; i< 15;i++)
 	{
 		printf("consumed: %d \n", buffer[i]);
 		if(buffer[i] == 2000)
