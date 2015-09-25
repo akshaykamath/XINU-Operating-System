@@ -3,8 +3,7 @@
  void producer(int count)
  {
       //Code to produce values less than equal to count, 
-	int i;
-	//n = 0;
+	int i;	
 	for(i = 1; i <= count; i++)
 	{
 		n = i;

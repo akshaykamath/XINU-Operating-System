@@ -9,6 +9,9 @@ shellcmd xsh_prodcons(int nargs, char *args[])
 
         int count = 2000;             //local varible to hold count
 	int i = 0;
+	
+	// Initialise the value of n to 0, since this is an extern variable, it may start with the previous value
+	n = 0;
  	/* Output info for '--help' argument */
 	if (nargs == 2 && strncmp(args[1], "--help", 7) == 0) 
 	{
