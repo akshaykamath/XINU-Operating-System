@@ -1,13 +1,14 @@
 #include <prodcons.h>
-
+#include <ctype.h>
 int n ;                 //Definition for global variable 'n'
 /*Now global variable n will be on Heap so it is accessible all the processes i.e. consume and produce*/
 
 shellcmd xsh_prodcons(int nargs, char *args[])
 {
-      //Argument verifications and validations
+        //Argument verifications and validations
 
-      int count = 2000;             //local varible to hold count
+        int count = 2000;             //local varible to hold count
+	int i = 0;
  	/* Output info for '--help' argument */
 	if (nargs == 2 && strncmp(args[1], "--help", 7) == 0) 
 	{
@@ -30,7 +31,18 @@ shellcmd xsh_prodcons(int nargs, char *args[])
 	/* If argument count is equal to 2, then assign args[1] to count variable */
 	if (nargs == 2) 
 	{
-		count =  atoi(args[1]);
+		// Parse through the array of parameters and return 1 if there is a character other than a number.
+		for(i = 0; args[1][i] != '\0'; i++ )
+		{
+			if (isdigit(args[1][i]) == 0)
+			{
+				fprintf(stderr, "%s: input parameter should be an integer.\n", args[0]);
+				return 1;	
+			}
+		}
+		
+		// Else, it can be safely converted to a number.
+		count =  atoi(args[1]);	
 	}
 	
       //create the process producer and consumer and put them in ready queue.
@@ -38,6 +50,4 @@ shellcmd xsh_prodcons(int nargs, char *args[])
 	
       resume( create(producer, 1024, 20, "producer", 3, count) );
       resume( create(consumer, 1024, 20, "consumer", 3, count) );
-      
-	
 }
