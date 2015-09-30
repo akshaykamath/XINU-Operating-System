@@ -2,6 +2,7 @@
 #include <ctype.h>
 int n ;                 //Definition for global variable 'n'
 /*Now global variable n will be on Heap so it is accessible all the processes i.e. consume and produce*/
+sid32 produced,consumed;
 
 shellcmd xsh_prodcons(int nargs, char *args[])
 {
@@ -10,14 +11,17 @@ shellcmd xsh_prodcons(int nargs, char *args[])
         int count = 2000;             //local varible to hold count
 	int i = 0;
 	
+	consumed = semcreate(1);
+	produced = semcreate(0);
+	
 	// Initialise the value of n to 0, since this is an extern variable, it may start with the previous value
-	n = 0;
+	
  	/* Output info for '--help' argument */
 	if (nargs == 2 && strncmp(args[1], "--help", 7) == 0) 
 	{
 		printf("Usage: %s\n\n", args[0]);
 		printf("Description:\n");
-		printf("\tProducer Consumer Example.\n");
+		printf("\tProducer Consumer Example using semaphore synchronization.\n");
 		printf("Options (one per invocation):\n");		
 		printf("\t--help\tdisplay this help and exit\n");
 		return 0;
@@ -47,10 +51,15 @@ shellcmd xsh_prodcons(int nargs, char *args[])
 		// Else, it can be safely converted to a number.
 		count =  atoi(args[1]);	
 	}
+
+	if(count == 0){
+		fprintf(stderr, "Count should be greater than zero.\n");
+		return 1;
+	}
 	
       //create the process producer and consumer and put them in ready queue.
       //Look at the definitions of function create and resume in exinu/system folder for reference.  
 	
-      resume( create(producer, 1024, 20, "producer", 1, count) );
-      resume( create(consumer, 1024, 20, "consumer", 1, count) );
+      resume( create(producer, 1024, 20, "producer", 3, count, consumed, produced) );
+      resume( create(consumer, 1024, 20, "consumer", 3, count, consumed, produced) );
 }
