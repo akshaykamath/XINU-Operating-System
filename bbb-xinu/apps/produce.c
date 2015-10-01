@@ -11,6 +11,9 @@
 		printf("produced: %d \n",n);
 		signal(produced);
 	}
+
+	// Delete the consumed semaphore once the produced semaphore after completion.
+	semdelete(produced);
  }
 
 
