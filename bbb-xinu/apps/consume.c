@@ -11,5 +11,9 @@ void consumer(int count, sid32 consumed, sid32 produced)
 			break;
 		}
 		signal(consumed);
+
 	}
+
+	// Delete the consumed semaphore once the consumer semaphore after completion.
+	semdelete(consumed);
 }
