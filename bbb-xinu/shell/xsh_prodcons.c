@@ -1,5 +1,7 @@
 #include <prodcons.h>
 #include <ctype.h>
+#include <stdlib.h>
+
 int n ;                 //Definition for global variable 'n'
 /*Now global variable n will be on Heap so it is accessible all the processes i.e. consume and produce*/
 sid32 produced,consumed;
@@ -21,7 +23,7 @@ shellcmd xsh_prodcons(int nargs, char *args[])
 	{
 		printf("Usage: %s\n\n", args[0]);
 		printf("Description:\n");
-		printf("\tProducer Consumer Example using semaphore synchronization.\n");
+		printf("\tProducer Consumer solution using semaphore synchronization.\n");
 		printf("Options (one per invocation):\n");		
 		printf("\t--help\tdisplay this help and exit\n");
 		return 0;
@@ -62,4 +64,6 @@ shellcmd xsh_prodcons(int nargs, char *args[])
 	
       resume( create(producer, 1024, 20, "producer", 3, count, consumed, produced) );
       resume( create(consumer, 1024, 20, "consumer", 3, count, consumed, produced) );
+	
+      return 0;
 }
