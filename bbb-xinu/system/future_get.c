@@ -2,7 +2,7 @@
 
 #include <future.h>
 
-syscall future_set(future* futureRef,int valueRef){
+syscall future_get(future* futureRef,int valueRef){
 
 	return SYSERR;	
 }

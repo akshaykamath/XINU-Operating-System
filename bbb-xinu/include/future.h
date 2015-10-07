@@ -1,3 +1,5 @@
+#include <xinu.h> 
+
 #ifndef _FUTURE_H_
 #define _FUTURE_H_
  
@@ -18,8 +20,8 @@ typedef struct futent
 
 /* Interface for system call */
 future* future_alloc(int future_flags);
-//syscall future_free(future*);
-//syscall future_get(future*, int*);
-//syscall future_set(future*, int*);
+syscall future_free(future*);
+syscall future_get(future*, int);
+syscall future_set(future*, int);
  
 #endif /* _FUTURE_H_ */

@@ -1,7 +1,7 @@
 /* future_alloc.c - future_alloc */
 
 #include <future.h>
-#include <xinu.h>
+
 future* future_alloc(int future_flags){
 
 	/*only support FUTURE_EXCLUSIVE mode*/

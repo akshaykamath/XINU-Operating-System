@@ -2,7 +2,8 @@
 
 #include <future.h>
 
-syscall future_set(future* futureRef,int valueRef){
+
+syscall future_free(future* futureRef){
 
 	return SYSERR;	
 }
