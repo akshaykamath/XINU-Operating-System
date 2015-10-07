@@ -3,7 +3,7 @@
 //todo
 int future_prod(future *fut) {
   int i, j;
-  j = (int)fut;
+  j = fut->value;
   for (i=0; i<1000; i++) {
     j += i;
   }
