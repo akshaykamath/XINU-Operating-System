@@ -2,8 +2,7 @@
 
 #include <future.h>
 
-
 syscall future_free(future* futureRef){
 
-	return SYSERR;	
+	return freemem((char *)futureRef, sizeof(future));;	
 }
