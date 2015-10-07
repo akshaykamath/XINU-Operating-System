@@ -11,7 +11,7 @@ future* future_alloc(int future_flags){
 	}
 
 	future* futureVar;
-	futureVar = (struct future *)getmem(28);
+	futureVar = (struct future *)getmem(sizeof(future));
 
 	if((int32)futureVar == SYSERR) {
 		return NULL;
