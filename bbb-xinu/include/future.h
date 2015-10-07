@@ -8,19 +8,18 @@
 
 /* modes of operation for future*/
 #define FUTURE_EXCLUSIVE  1	
-
 typedef struct futent
 {
-   int *value;		
+   int value;		
    int flag;		
    int state;         	
-   tid_typ tid;
+   //pid32 pid;
 } future;
 
 /* Interface for system call */
 future* future_alloc(int future_flags);
-syscall future_free(future*);
-syscall future_get(future*, int*);
-syscall future_set(future*, int*);
+//syscall future_free(future*);
+//syscall future_get(future*, int*);
+//syscall future_set(future*, int*);
  
 #endif /* _FUTURE_H_ */
