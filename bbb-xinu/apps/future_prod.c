@@ -7,7 +7,7 @@ int future_prod(future *fut) {
   for (i=0; i<1000; i++) {
     j += i;
   }
-  future_set(fut, j);
+  future_set(fut, &j);
   return OK;
 }
 

@@ -10,14 +10,13 @@ future* future_alloc(int future_flags){
 		return NULL;
 	}
 
-	/*int occupies 8 bytes of memory for a 64-bit processor
-	and int * occupies 8 bytes of memory
-	So, struct future needs 48 bytes of memory*/
+	future* futureVar;
+	futureVar = (struct future *)getmem(28);
 
-	char * memAddress = getmem(48);
-
-	/* create a pointer to new future */
-	future* futureVar = (future *)memAddress; // Verify at runtime issues -TODO
+	if((int32)futureVar == SYSERR) {
+		return NULL;
+	}
+	
 	futureVar->flag = future_flags; 
 	futureVar->state = FUTURE_EMPTY;
 	futureVar->value = 0;

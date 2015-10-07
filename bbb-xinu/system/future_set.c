@@ -2,7 +2,10 @@
 
 #include <future.h>
 
-syscall future_set(future* futureRef,int valueRef){
+syscall future_set(future* futureRef,int* valueRef){
+	if(futureRef != NULL){
+		int state = futureRef->state;
+	}
 
 	return SYSERR;	
 }
