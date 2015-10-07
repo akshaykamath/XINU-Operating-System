@@ -3,9 +3,21 @@
 #include <future.h>
 
 syscall future_set(future* futureRef,int* valueRef){
-	if(futureRef != NULL){
-		int state = futureRef->state;
+	intmask mask;			/* Saved interrupt mask		*/
+	mask = disable();
+	if(futureRef == NULL){
+		restore(mask);
+		return SYSERR;
 	}
-
-	return SYSERR;	
+	int state = futureRef->state;
+	
+	pid32 pid = futureRef->pid;
+	
+	if(state == FUTURE_WAITING){
+	   futureRef->value = *valueRef;
+	   futureRef->state = FUTURE_VALID;
+	   ready(pid);
+	}
+	restore(mask);
+	return OK;	
 }
