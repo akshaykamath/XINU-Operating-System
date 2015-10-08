@@ -1,10 +1,9 @@
-#include <prodcons.h>
+#include <future.h>
 #include <ctype.h>
 #include <stdlib.h>
 
 int n ;                 //Definition for global variable 'n'
-/*Now global variable n will be on Heap so it is accessible all the processes i.e. consume and produce*/
-sid32 produced,consumed;
+
 
 shellcmd xsh_prodcons(int nargs, char *args[])
 {
@@ -13,8 +12,6 @@ shellcmd xsh_prodcons(int nargs, char *args[])
         int count = 2000;             //local varible to hold count
 	int i = 0;
 	
-	consumed = semcreate(1);
-	produced = semcreate(0);
 	
 	// Initialise the value of n to 0, since this is an extern variable, it may start with the previous value
 	
@@ -59,11 +56,16 @@ shellcmd xsh_prodcons(int nargs, char *args[])
 		return 1;
 	}
 	
-      //create the process producer and consumer and put them in ready queue.
-      //Look at the definitions of function create and resume in exinu/system folder for reference.  
-	
-      resume( create(producer, 1024, 20, "producer", 3, count, consumed, produced) );
-      resume( create(consumer, 1024, 20, "consumer", 3, count, consumed, produced) );
+      future * f1, *f2, *f3 ;
+      f1 = future_alloc(FUTURE_EXCLUSIVE);
+      f2 = future_alloc(FUTURE_EXCLUSIVE);
+      f3 = future_alloc(FUTURE_EXCLUSIVE);	
+      resume( create(future_cons, 1024, 20, "fcons1", 1, f1) );
+      resume( create(future_prod, 1024, 20, "fprod1", 1, f1) );
+      resume( create(future_cons, 1024, 20, "fcons1", 1, f2) );
+      resume( create(future_prod, 1024, 20, "fprod1", 1, f2) );
+      resume( create(future_cons, 1024, 20, "fcons1", 1, f3) );
+      resume( create(future_prod, 1024, 20, "fprod1", 1, f3) );
 	
       return 0;
 }
