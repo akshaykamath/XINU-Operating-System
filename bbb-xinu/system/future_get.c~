@@ -15,7 +15,6 @@ syscall future_get(future* futureRef,int* valueRef){
 		
 		return OK;
 	}
-	printf("Get --> %d", *valueRef);
 
 	if (futureRef->state == FUTURE_EMPTY) {		/* If caller must block	*/
 		prptr = &proctab[currpid];
