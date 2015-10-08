@@ -25,7 +25,7 @@ syscall future_get(future*, int*);
 syscall future_set(future*, int*);
 
 /* producer declaration */
-int future_prod(future * fut);
-int future_cons(future * fut);
+uint32 future_prod(future * fut);
+uint32 future_cons(future * fut);
  
 #endif /* _FUTURE_H_ */
