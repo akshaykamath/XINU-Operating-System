@@ -1,6 +1,6 @@
 #include <future.h>
 
-int future_cons(future *fut) {
+uint32 future_cons(future *fut) {
   int i, status;
   status = future_get(fut, &i);
   if (status < 1) {
