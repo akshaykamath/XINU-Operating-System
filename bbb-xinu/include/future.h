@@ -1,5 +1,5 @@
 #include <xinu.h> 
-
+#include <stdbool.h>
 #ifndef _FUTURE_H_
 #define _FUTURE_H_
  
@@ -17,6 +17,8 @@ typedef struct futent
    int state;         	
    pid32 pid;
 } future;
+
+ bool lock;
 
 /* Interface for system call */
 future* future_alloc(int future_flags);
