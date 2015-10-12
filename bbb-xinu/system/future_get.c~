@@ -2,7 +2,6 @@
 
 #include <future.h>
 
-
 /*if a thread calls future_get() on future in FUTURE_EMPTY, then the calling thread should block and its thread id should get stored in the pid field of the future. Now subsequent calls to future_get() on a future should fail with SYSERR*/
 syscall future_get(future* futureRef,int* valueRef){
 
@@ -30,7 +29,7 @@ syscall future_get(future* futureRef,int* valueRef){
 		}
 	}
 	
-	if(futureRef->state == FUTURE_WAITING)
+	if(futureRef->state == FUTURE_WAITING /* || futureRef->state == FUTURE_VALID*/)
 	{	
 		return SYSERR;
 	}

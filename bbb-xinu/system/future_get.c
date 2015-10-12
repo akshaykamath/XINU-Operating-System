@@ -12,7 +12,7 @@ syscall future_get(future* futureRef,int* valueRef){
 
 		if(TestAndSet() == 0)
 		{
-			printf("Process %d, lock acquired\n", currpid);
+			//printf("Process %d, lock acquired\n", currpid);
 		}
 		
 		// while we have the lock, wait for the state to be updated
@@ -29,7 +29,7 @@ syscall future_get(future* futureRef,int* valueRef){
 		}
 	}
 	
-	if(futureRef->state == FUTURE_WAITING)
+	if(futureRef->state == FUTURE_WAITING /* || futureRef->state == FUTURE_VALID*/)
 	{	
 		return SYSERR;
 	}

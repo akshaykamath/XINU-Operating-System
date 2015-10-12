@@ -10,7 +10,9 @@ uint32 future_cons(future *fut) {
 	    return SYSERR;
 	}
 
-   printf("Process %d consumed %d\n",currpid, i);  
+   printf("Process ID : %d\n",currpid);
+   printf("it consumed : %d\n",i);
+   future_free(fut);  
    return OK;
 }
 

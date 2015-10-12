@@ -1,13 +1,15 @@
-#include<stdio.h>
+
 #include<future.h>
 
 lock = 0;
 
 int TestAndSet() 
 {
+	intmask mask = disable();
 	int oldval;
 	oldval = lock;    
 	lock = 1;
+	restore(mask);
 	return oldval;
 }
 
