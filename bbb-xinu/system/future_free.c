@@ -2,7 +2,17 @@
 
 #include <future.h>
 
-syscall future_free(future* futureRef){
+syscall future_free(future** futureRef){
 
-	return freemem((char *)futureRef, sizeof(future));;	
+	int status;
+	status = freemem((struct future *)(*futureRef), sizeof(future));
+	if(status == OK){
+		printf("Memory freed successfully\n");
+		*futureRef = NULL;
+		return OK;
+	}
+	printf("free \n");
+	printf("%d\n",status);
+
+	return status;	
 }

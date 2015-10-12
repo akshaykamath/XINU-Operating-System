@@ -1,20 +1,21 @@
 
 #include<future.h>
 
-lock = 0;
-
-int TestAndSet() 
+//lock = 0;
+int TestAndSet(future* futureRef) 
 {
-	intmask mask = disable();
+	intmask mask;
+	mask = disable();
 	int oldval;
 	oldval = lock;    
-	lock = 1;
+	futureRef->lock = 1;
 	restore(mask);
 	return oldval;
 }
 
-void ReleaseLock()
+void ReleaseLock(future* futureRef)
 {
-	lock = 0;
+	futureRef->lock = 0;
+	
 }
 

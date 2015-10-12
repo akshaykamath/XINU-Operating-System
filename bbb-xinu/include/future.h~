@@ -16,16 +16,18 @@ typedef struct futent
    int flag;		
    int state;         	
    pid32 pid;
+   int lock;
 } future;
 
-int lock = 0;
+//int lock;
+
 
 /* Interface for system call */
 future* future_alloc(int future_flags);
-syscall future_free(future*);
+syscall future_free(future**);
 syscall future_get(future*, int*);
 syscall future_set(future*, int*);
-int TestAndSet();
+int TestAndSet(future* );
 
 /* producer declaration */
 uint32 future_prod(future * fut);

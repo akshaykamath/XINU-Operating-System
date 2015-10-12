@@ -1,7 +1,7 @@
 /* future_alloc.c - future_alloc */
 
 #include <future.h>
-#include <xinu.h>
+
 future* future_alloc(int future_flags){
 
 	/*only support FUTURE_EXCLUSIVE mode*/
@@ -10,16 +10,16 @@ future* future_alloc(int future_flags){
 		return NULL;
 	}
 
-	/*int occupies 8 bytes of memory for a 64-bit processor
-	and int * occupies 8 bytes of memory
-	So, struct future needs 48 bytes of memory*/
+	future* futureVar;
+	futureVar = (struct future *)getmem(sizeof(future));
 
-	char * memAddress = getmem(48);
-
-	/* create a pointer to new future */
-	future* futureVar = (future *)memAddress; // Verify at runtime
-	futureVar->flag = future_flags;
+	if((int32)futureVar == SYSERR) {
+		return NULL;
+	}
+	
+	futureVar->flag = future_flags; 
 	futureVar->state = FUTURE_EMPTY;
+	futureVar->value = 0;
 	futureVar->value = 0;
 	return futureVar;
 }

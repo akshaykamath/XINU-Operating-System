@@ -6,7 +6,8 @@
 */
 syscall future_set(future* futureRef,int* valueRef){
 
-	if(futureRef == NULL){
+	if(!futureRef){
+		printf("set: future is NULL\n");
 		return SYSERR;
 	}
 	

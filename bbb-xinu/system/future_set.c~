@@ -6,7 +6,8 @@
 */
 syscall future_set(future* futureRef,int* valueRef){
 
-	if(futureRef == NULL){
+	if(!futureRef){
+		printf("set: Future is NULL\n");
 		return SYSERR;
 	}
 	
@@ -15,8 +16,7 @@ syscall future_set(future* futureRef,int* valueRef){
 	}
 	else if(futureRef->state == FUTURE_EMPTY || futureRef->state == FUTURE_WAITING){
 		futureRef->value = *valueRef;		
-		futureRef->state= FUTURE_VALID;	
-		
+		futureRef->state= FUTURE_VALID;		
 	}
 	return OK;	
 }
