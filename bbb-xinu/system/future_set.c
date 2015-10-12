@@ -22,7 +22,7 @@ syscall future_set(future* futureRef,int* valueRef){
 		futureRef->value = *valueRef;		
 		futureRef->state= FUTURE_VALID;	
 		//printf("setting");
-		ReleaseLock();
+		
 	}
 
 	//test code ends here
