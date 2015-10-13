@@ -84,53 +84,6 @@ shellcmd xsh_prodcons(int nargs, char *args[])
 	      	resume( create(future_prod, 1024, 20, "fprod32", 1, f3) );
 		freefutures(&f3);
 
-/* 		Test Set:
-		//future_free(&f1);
- 	        resume( create(future_cons, 1024, 20, "fcons1", 1, f1) );
- 	        resume( create(future_cons, 1024, 20, "fcons2", 1, f1) );
- 	        resume( create(future_cons, 1024, 20, "fcons3", 1, f1) );
- 	        resume( create(future_cons, 1024, 20, "fcons4", 1, f1) );
- 	        resume( create(future_cons, 1024, 20, "fcons5", 1, f1) );
-		resume( create(future_prod, 1024, 20, "fprod1", 1, f1) );
-		resume( create(future_prod, 1024, 20, "fprod1", 1, f1) );
-		resume( create(future_prod, 1024, 20, "fprod2", 1, f1) );
-		resume( create(future_prod, 1024, 20, "fprod3", 1, f1) );		
-		resume( create(future_prod, 1024, 20, "fprod4", 1, f1) );		
-		resume( create(future_prod, 1024, 20, "fprod5", 1, f1) );
-		resume( create(future_cons, 1024, 20, "fcons78", 1, f1) );				
-		resume( create(future_prod, 1024, 20, "fprod78", 1, f1) );
-		freefutures(&f1);
- 		resume( create(future_cons, 1024, 20, "fcons91", 1, f1) );
- 	        resume( create(future_cons, 1024, 20, "fcons93", 1, f1) );
- 	        resume( create(future_cons, 1024, 20, "fcons49", 1, f1) );
- 	        resume( create(future_cons, 1024, 20, "fcons59", 1, f1) );
-		resume( create(future_prod, 1024, 20, "fprod19", 1, f1) );
-		resume( create(future_prod, 1024, 20, "fprod69", 1, f1) );
-		resume( create(future_prod, 1024, 20, "fprod29", 1, f1) );
-		resume( create(future_prod, 1024, 20, "fprod39", 1, f1) );		
-		resume( create(future_prod, 1024, 20, "fprod49", 1, f1) );		
-		resume( create(future_prod, 1024, 20, "fprod59", 1, f1) );
-	
-		resume( create(future_cons, 1024, 20, "fcons2", 1, f2) );       
-		resume( create(future_cons, 1024, 20, "fcons2", 1, f2) );       
-		resume( create(future_cons, 1024, 20, "fcons2", 1, f2) );       
-	      	resume( create(future_prod, 1024, 20, "fprod2", 1, f2) );
-	      	resume( create(future_prod, 1024, 20, "fprod2", 1, f2) );
-		freefutures(&f2);
-	      	resume( create(future_prod, 1024, 20, "fprod2", 1, f2) );
-		resume( create(future_cons, 1024, 20, "fcons2", 1, f2) );       
-		resume( create(future_prod, 1024, 20, "fprod2", 1, f2) );
- 	      	resume( create(future_cons, 1024, 20, "fcons3", 1, f3) );
-	      	resume( create(future_prod, 1024, 20, "fprod3", 1, f3) );
-		freefutures(&f3);
-		freefutures(&f3);
-		freefutures(&f3);
-		freefutures(&f2);
-		freefutures(&f1);
-		freefutures(&f1);
-		resume( create(future_cons, 1024, 20, "fcons5", 1, f1) );
-		resume( create(future_cons, 1024, 20, "fcons5", 1, f2) );
-		resume( create(future_cons, 1024, 20, "fcons5", 1, f3) );*/
 	}
 	else
 	{
