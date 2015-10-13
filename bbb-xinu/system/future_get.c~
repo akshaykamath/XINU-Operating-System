@@ -9,8 +9,15 @@ syscall future_get(future* futureRef,int* valueRef){
 		intmask mask;
 		mask = disable();
 		kprintf("get: future has already been used by another consumer and/or is NULL \n");
+		restore(mask);
 		return SYSERR;
 	}
+	
+	if(futureRef->state == FUTURE_EMPTY && futureRef->pid != 0)
+	{
+		return SYSERR;	
+	}
+
 	if (futureRef->state == FUTURE_EMPTY) 
 	{		/* If caller must block	*/
 		futureRef->state = FUTURE_WAITING;
@@ -28,12 +35,13 @@ syscall future_get(future* futureRef,int* valueRef){
 			{
 				*valueRef = futureRef->value; 
 				futureRef->state = FUTURE_EMPTY;
-				futureRef->pid = 0;	
 				ReleaseLock(futureRef);					
 				return OK;	
 			}
 		}		
 	}
+	
+	
 	
 	if(futureRef->state == FUTURE_WAITING  || futureRef->state == FUTURE_VALID)
 	{	

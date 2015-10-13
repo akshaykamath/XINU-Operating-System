@@ -12,6 +12,12 @@ syscall future_get(future* futureRef,int* valueRef){
 		restore(mask);
 		return SYSERR;
 	}
+	
+	if(futureRef->state == FUTURE_EMPTY && futureRef->pid != 0)
+	{
+		return SYSERR;	
+	}
+
 	if (futureRef->state == FUTURE_EMPTY) 
 	{		/* If caller must block	*/
 		futureRef->state = FUTURE_WAITING;
@@ -29,7 +35,6 @@ syscall future_get(future* futureRef,int* valueRef){
 			{
 				*valueRef = futureRef->value; 
 				futureRef->state = FUTURE_EMPTY;
-				futureRef->pid = 0;	
 				ReleaseLock(futureRef);					
 				return OK;	
 			}

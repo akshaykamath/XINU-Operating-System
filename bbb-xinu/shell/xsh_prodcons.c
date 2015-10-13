@@ -62,8 +62,7 @@ shellcmd xsh_prodcons(int nargs, char *args[])
 	if(useFutures)
 	{
 	      future * f1, *f2, *f3  ;
-	      f1 = future_alloc(FUTURE_EXCLUSIVE);
-	      
+	      f1 = future_alloc(FUTURE_EXCLUSIVE);	      
 	      f2 = future_alloc(FUTURE_EXCLUSIVE);
 	      f3 = future_alloc(FUTURE_EXCLUSIVE);
 	      if(f1 == NULL || f2 == NULL || f3 == NULL)

@@ -22,6 +22,7 @@ future* future_alloc(int future_flags){
 	
 	futureVar->flag = future_flags; 
 	futureVar->state = FUTURE_EMPTY;
+futureVar->pid = 0;
 	futureVar->value = 0;
 	futureVar->lock = 0;
 	return futureVar;

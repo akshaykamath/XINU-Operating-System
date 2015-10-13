@@ -19,7 +19,7 @@ uint32 future_prod(future *fut) {
   if(status == SYSERR){
 	intmask mask;
 	mask = disable();
-	kprintf("fprod :future is either null or already in valid state\n");
+	kprintf("fprod :future is either null or empty state or already in valid state\n");
 	restore(mask);
   }
   return OK;
