@@ -1,3 +1,5 @@
+#include <xinu.h> 
+#include <stdbool.h>
 #ifndef _FUTURE_H_
 #define _FUTURE_H_
  
@@ -10,16 +12,25 @@
 #define FUTURE_EXCLUSIVE  1	
 typedef struct futent
 {
-   int *value;		
+   int value;		
    int flag;		
    int state;         	
-   //pid32 pid;
+   pid32 pid;
+   int lock;
 } future;
+
+//int lock;
+
 
 /* Interface for system call */
 future* future_alloc(int future_flags);
-//syscall future_free(future*);
-//syscall future_get(future*, int*);
-//syscall future_set(future*, int*);
+syscall future_free(future**);
+syscall future_get(future*, int*);
+syscall future_set(future*, int*);
+int TestAndSet(future* );
+
+/* producer declaration */
+uint32 future_prod(future * fut);
+uint32 future_cons(future * fut);
  
 #endif /* _FUTURE_H_ */

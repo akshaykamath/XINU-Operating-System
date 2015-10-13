@@ -11,7 +11,6 @@ syscall future_free(future** futureRef){
 		mask = disable();
 		kprintf("Free Failed: Null passed\n");
 		restore(mask);
-		return -1;
 	}
 	status = freemem((struct future *)(*futureRef), sizeof(future));
 	if(status == OK){

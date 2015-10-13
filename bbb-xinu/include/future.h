@@ -1,5 +1,5 @@
 #include <xinu.h> 
-
+#include <stdbool.h>
 #ifndef _FUTURE_H_
 #define _FUTURE_H_
  
@@ -16,13 +16,16 @@ typedef struct futent
    int flag;		
    int state;         	
    pid32 pid;
+   int lock;
 } future;
+
 
 /* Interface for system call */
 future* future_alloc(int future_flags);
-syscall future_free(future*);
+syscall future_free(future**);
 syscall future_get(future*, int*);
 syscall future_set(future*, int*);
+int TestAndSet(future* );
 
 /* producer declaration */
 uint32 future_prod(future * fut);

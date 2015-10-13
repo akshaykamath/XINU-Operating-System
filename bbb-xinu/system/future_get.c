@@ -2,29 +2,44 @@
 
 #include <future.h>
 
+/*if a thread calls future_get() on future in FUTURE_EMPTY, then the calling thread should block and its thread id should get stored in the pid field of the future. Now subsequent calls to future_get() on a future should fail with SYSERR*/
 syscall future_get(future* futureRef,int* valueRef){
-
-	intmask mask;			/* Saved interrupt mask		*/
-	struct	procent *prptr;		/* Ptr to process' table entry	*/
-
-	mask = disable();
 	
-	if (futureRef->state == FUTURE_VALID) {
-		*valueRef = futureRef->value; 
+	if(!futureRef){
+		intmask mask;
+		mask = disable();
+		kprintf("get: future has already been used by another consumer and/or is NULL \n");
 		restore(mask);
-		
-		return OK;
+		return SYSERR;
 	}
-
-	if (futureRef->state == FUTURE_EMPTY) {		/* If caller must block	*/
-		prptr = &proctab[currpid];
-		prptr->prstate = PR_WAIT;	/* Set state to waiting	*/		
+	if (futureRef->state == FUTURE_EMPTY) 
+	{		/* If caller must block	*/
 		futureRef->state = FUTURE_WAITING;
 		futureRef->pid = currpid;
-		resched();			/*   and reschedule	*/
+
+		if(TestAndSet(futureRef) == 0)
+		{
+			kprintf("Process %d, lock acquired\n", currpid);
+		}
+		
+		// while we have the lock, wait for the state to be updated
+		while (TestAndSet(futureRef) == 1)
+		{
+			if (futureRef->state == FUTURE_VALID) 
+			{
+				*valueRef = futureRef->value; 
+				futureRef->state = FUTURE_EMPTY;
+				futureRef->pid = 0;	
+				ReleaseLock(futureRef);					
+				return OK;	
+			}
+		}		
 	}
 	
-	*valueRef = futureRef->value; 
-	restore(mask);
+	if(futureRef->state == FUTURE_WAITING  || futureRef->state == FUTURE_VALID)
+	{	
+		return SYSERR;
+	}
+
 	return OK;
 }

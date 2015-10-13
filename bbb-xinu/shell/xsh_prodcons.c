@@ -9,7 +9,7 @@ shellcmd xsh_prodcons(int nargs, char *args[])
 {
         //Argument verifications and validations
 
-        int count = 2000;             //local varible to hold count
+        int count = 2000;             //local variable to hold count
 	int i = 0;
 	int useFutures = 0;
 	
@@ -24,6 +24,7 @@ shellcmd xsh_prodcons(int nargs, char *args[])
 		printf("Options (one per invocation):\n");		
 		printf("\t--help\tdisplay this help and exit\n");
 		printf("\t-f\tUses futures and promises\n");
+		printf("\tn\tnumber of values to be produced and consumed,default is 2000\n");
 		return 0;
 	}
 
@@ -60,16 +61,28 @@ shellcmd xsh_prodcons(int nargs, char *args[])
 	
 	if(useFutures)
 	{
-	      future * f1, *f2, *f3 ;
+	      future * f1, *f2, *f3  ;
 	      f1 = future_alloc(FUTURE_EXCLUSIVE);
+	      
 	      f2 = future_alloc(FUTURE_EXCLUSIVE);
-	      f3 = future_alloc(FUTURE_EXCLUSIVE);	
-	      resume( create(future_cons, 1024, 20, "fcons1", 1, f1) );
-	      resume( create(future_prod, 1024, 20, "fprod1", 1, f1) );
-	      resume( create(future_cons, 1024, 20, "fcons1", 1, f2) );
-	      resume( create(future_prod, 1024, 20, "fprod1", 1, f2) );
-	      resume( create(future_cons, 1024, 20, "fcons1", 1, f3) );
-	      resume( create(future_prod, 1024, 20, "fprod1", 1, f3) );
+	      f3 = future_alloc(FUTURE_EXCLUSIVE);
+	      if(f1 == NULL || f2 == NULL || f3 == NULL)
+	      {
+		return 1;
+	      }	
+
+ 		resume( create(future_cons, 1024, 20, "fcons11", 1, f1) ); 	       
+		resume( create(future_prod, 1024, 20, "fprod12", 1, f1) );
+		// After Usage is completed delete the future
+		freefutures(&f1);
+
+ 		resume( create(future_cons, 1024, 20, "fcons21", 1, f2) ); 	        
+		resume( create(future_prod, 1024, 20, "fprod22", 1, f2) );
+		freefutures(&f2);
+	      	
+ 	      	resume( create(future_cons, 1024, 20, "fcons31", 1, f3) );
+	      	resume( create(future_prod, 1024, 20, "fprod32", 1, f3) );
+		freefutures(&f3);
 
 	}
 	else
@@ -86,3 +99,13 @@ shellcmd xsh_prodcons(int nargs, char *args[])
 
       return 0;
 }
+
+void freefutures(future **f1)
+{
+	while (TestAndSet(*f1));
+	future_free(f1);	
+}
+
+
+
+

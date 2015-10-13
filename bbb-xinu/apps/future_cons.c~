@@ -1,14 +1,30 @@
 #include <future.h>
 
-uint future_cons(future *fut) {
+uint32 future_cons(future *fut) {
   int i, status;
-  status = future_get(fut, &i);
-  if (status < 1) {
-    printf("future_get failed\n");
-    return -1;
+  if(!fut){
+   	intmask mask;
+   	mask = disable();	
+	kprintf("fcons : future is null\n");
+	restore(mask);
+	return SYSERR;
   }
-  printf("it produced %d\n", i);
-  return OK;
+  status = future_get(fut, &i);
+  if (status == SYSERR) 
+	{
+	   intmask mask;
+   	   mask = disable();
+	   kprintf("Process %d Error future locked by process: %d\n", currpid, fut->pid);  
+	   return SYSERR;
+	}
+
+   intmask mask;
+   mask = disable();
+   kprintf("Process ID : %d\n",currpid);
+   kprintf("it consumed : %d\n",i);
+   restore(mask);
+   return OK;
 }
+
 
 
