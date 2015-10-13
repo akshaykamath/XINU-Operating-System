@@ -6,7 +6,10 @@ future* future_alloc(int future_flags){
 
 	/*only support FUTURE_EXCLUSIVE mode*/
 	if(future_flags != FUTURE_EXCLUSIVE){
-		printf("Only FUTURE_EXCLUSIVE mode is supported");
+		intmask mask;
+   		mask = disable();
+		kprintf("Only FUTURE_EXCLUSIVE mode is supported\n");
+		restore(mask);
 		return NULL;
 	}
 

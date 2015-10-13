@@ -2,9 +2,12 @@
 
 uint32 future_prod(future *fut) {
   int i, j,status;
-	printf("Test f : %d\n",fut);
+	
   if(!fut){
-	printf("fprod : future is NULL\n");
+	intmask mask;
+	mask = disable();
+	kprintf("fprod : future is NULL\n");
+	restore(mask);
 	return SYSERR;
   }
   
@@ -14,8 +17,10 @@ uint32 future_prod(future *fut) {
   }
   status = future_set(fut, &j);
   if(status == SYSERR){
-	printf("fprod :future is either NULL or already in VALID state\n");
-	return SYSERR;
+	intmask mask;
+	mask = disable();
+	kprintf("fprod :future is either null or already in VALID state\n");
+	restore(mask);
   }
   return OK;
 }

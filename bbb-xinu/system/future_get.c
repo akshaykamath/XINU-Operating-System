@@ -6,7 +6,10 @@
 syscall future_get(future* futureRef,int* valueRef){
 	
 	if(!futureRef){
-		printf("get: future has already been used by another consumer and/or is NULL \n");
+		intmask mask;
+		mask = disable();
+		kprintf("get: future has already been used by another consumer and/or is NULL \n");
+		restore(mask);
 		return SYSERR;
 	}
 	if (futureRef->state == FUTURE_EMPTY) 
@@ -16,7 +19,7 @@ syscall future_get(future* futureRef,int* valueRef){
 
 		if(TestAndSet(futureRef) == 0)
 		{
-			printf("Process %d, lock acquired\n", currpid);
+			kprintf("Process %d, lock acquired\n", currpid);
 		}
 		
 		// while we have the lock, wait for the state to be updated
@@ -27,12 +30,10 @@ syscall future_get(future* futureRef,int* valueRef){
 				*valueRef = futureRef->value; 
 				futureRef->state = FUTURE_EMPTY;
 				futureRef->pid = 0;	
-				ReleaseLock(futureRef);	
-				int status = future_free(&futureRef);
-				return status;	
+				ReleaseLock(futureRef);					
+				return OK;	
 			}
-		}
-		//future_free(&futureRef);
+		}		
 	}
 	
 	if(futureRef->state == FUTURE_WAITING  || futureRef->state == FUTURE_VALID)

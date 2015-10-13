@@ -3,18 +3,27 @@
 uint32 future_cons(future *fut) {
   int i, status;
   if(!fut){
-	printf("fcons : future is null\n");
+   	intmask mask;
+   	mask = disable();	
+	kprintf("fcons : future is null\n");
+	restore(mask);
 	return SYSERR;
   }
   status = future_get(fut, &i);
   if (status == SYSERR) 
 	{
-	   printf("Process %d Error future locked by process: %d\n", currpid, fut->pid);  
+	   intmask mask;
+   	   mask = disable();
+	   kprintf("Process %d Error future locked by process: %d\n", currpid, fut->pid);  
+	   restore(mask);
 	   return SYSERR;
 	}
 
-   printf("Process ID : %d\n",currpid);
-   printf("it consumed : %d\n",i);
+   intmask mask;
+   mask = disable();
+   kprintf("Process ID : %d\n",currpid);
+   kprintf("it consumed : %d\n",i);
+   restore(mask);
    return OK;
 }
 

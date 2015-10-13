@@ -1,9 +1,11 @@
-
 #include<future.h>
 
-//lock = 0;
 int TestAndSet(future* futureRef) 
 {
+	if(futureRef == NULL)
+	{
+		return 0;
+	}
 	intmask mask;
 	mask = disable();
 	int oldval;

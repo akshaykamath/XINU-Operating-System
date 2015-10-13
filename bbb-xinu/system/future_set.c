@@ -7,14 +7,14 @@
 syscall future_set(future* futureRef,int* valueRef){
 
 	if(!futureRef){
-		printf("set: future is NULL\n");
+		kprintf("set: future is NULL\n");
 		return SYSERR;
 	}
 	
-	if(futureRef->state == FUTURE_VALID){
+	if(futureRef->state == FUTURE_VALID || futureRef->state == FUTURE_EMPTY){
 		return SYSERR;
 	}
-	else if(futureRef->state == FUTURE_EMPTY || futureRef->state == FUTURE_WAITING){
+	else if(futureRef->state == FUTURE_WAITING){
 		futureRef->value = *valueRef;		
 		futureRef->state= FUTURE_VALID;		
 	}

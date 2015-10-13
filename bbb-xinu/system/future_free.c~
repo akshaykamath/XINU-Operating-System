@@ -5,16 +5,26 @@
 syscall future_free(future** futureRef){
 
 	int status;
-	printf("Before free\n %d",futureRef);
+	if(futureRef == NULL)
+	{
+		intmask mask;
+		mask = disable();
+		kprintf("Free Failed: Null passed\n");
+		restore(mask);
+	}
 	status = freemem((struct future *)(*futureRef), sizeof(future));
 	if(status == OK){
-		printf("Memory freed successfully\n");
-		printf("After free\n %d",futureRef);
+		intmask mask;
+		mask = disable();
+		kprintf("Memory freed successfully\n");
 		*futureRef = NULL;
+		restore(mask);
 		return OK;
 	}
-	printf("free \n");
-	printf("%d\n",status);
-
+	// Error logging
+	intmask mask;
+	mask = disable();
+	kprintf("Free Failed: %d\n", status);
+	restore(mask);
 	return status;	
 }
