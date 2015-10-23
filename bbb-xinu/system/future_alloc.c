@@ -15,9 +15,10 @@ future* future_alloc(int future_flags){
 
 	future* futureVar;
 	futureVar = (struct future *)getmem(sizeof(future));
-	futureVar->value = (int *)getmem(sizeof(int));
+	//futureVar->value = (int *)getmem(sizeof(int));
 	futureVar->set_queue = (struct Queue *)getmem(sizeof(struct Queue));
 	futureVar->get_queue = (struct Queue *)getmem(sizeof(struct Queue));
+	futureVar->pid=0;
 	initqu(&futureVar->get_queue);
 	initqu(&futureVar->set_queue);
 	

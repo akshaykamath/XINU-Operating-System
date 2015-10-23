@@ -12,17 +12,17 @@ int handle_exclusive_set(future* futureRef,int* valueRef, intmask mask)
 	
 	if(futureRef->state == FUTURE_EMPTY)
 	{
-		futureRef->value= valueRef;		
+		futureRef->value= *valueRef;		
 		futureRef->state= FUTURE_VALID;		
-		futureRef->pid= 33;		
-		kprintf("resume process %d\n",*futureRef->value);
+
+		//kprintf("resume process %d\n",futureRef->value);
 		restore(mask);	
 		return OK;	
 	}
 
 	else if(futureRef->state == FUTURE_WAITING)
 	{		
-		futureRef->value = valueRef;		
+		futureRef->value = *valueRef;		
 		futureRef->state= FUTURE_VALID;			
 		
 		resume(futureRef->pid);
@@ -35,6 +35,7 @@ int handle_exclusive_set(future* futureRef,int* valueRef, intmask mask)
 
 int handle_shared_set(future* futureRef,int* valueRef)
 {
+/*
 kprintf("here");
 	if(futureRef->state == FUTURE_VALID || futureRef->state == FUTURE_EMPTY)
 	{
@@ -51,7 +52,7 @@ kprintf("here");
 		
 		return OK;
 	}
-
+*/
 	return OK;
 }
 
@@ -89,7 +90,7 @@ syscall future_set(future* futureRef,int* valueRef){
 		kprintf("Return set %d\n", futureRef->flag);
 		break;
     	}
-kprintf("endset\n");	
+//kprintf("endset\n");	
 	restore(mask);
 	return status;
 }

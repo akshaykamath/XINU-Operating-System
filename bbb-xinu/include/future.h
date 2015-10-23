@@ -20,7 +20,7 @@
 #define FUTURE_EXCLUSIVE  1	
 typedef struct futent
 {
-   int *value;		
+   int value;
    int flag;		
    int state;         	
    pid32 pid;

@@ -4,7 +4,13 @@
 
 int handle_exclusive_get(future* futureRef,int** valueRef)
 {
+		//kprintf("pid:%d, \n",futureRef->pid);
 		
+	if(futureRef->pid!=0)
+	{
+		return SYSERR;
+	}
+
 	if (futureRef->state == FUTURE_EMPTY) 
 	{
 		futureRef->state = FUTURE_WAITING;
@@ -12,16 +18,16 @@ int handle_exclusive_get(future* futureRef,int** valueRef)
 		kprintf("suspend process %d\n",currpid);			
 		suspend(currpid);		
 		resched();
-		**valueRef = *futureRef->value;			
+		**valueRef = futureRef->value;			
 		return OK;
 	}
 
 	if(futureRef->state == FUTURE_VALID)
 	{
-		futureRef->state = FUTURE_EMPTY;
-		futureRef->pid = 0;
-		**valueRef = *futureRef->value;	
-		kprintf("valid value: %d", *futureRef->value);
+		//futureRef->state = FUTURE_EMPTY;
+		futureRef->pid = currpid;
+		**valueRef = futureRef->value;	
+		//kprintf("valid value: %d", futureRef->value);
 		return OK;
 	}
 	
@@ -35,7 +41,7 @@ int handle_exclusive_get(future* futureRef,int** valueRef)
 
 int handle_shared_get(future* futureRef,int** valueRef)
 {
-	if (futureRef->state == FUTURE_EMPTY) 
+	/*if (futureRef->state == FUTURE_EMPTY) 
 	{
 		futureRef->state = FUTURE_WAITING;
 		futureRef->pid = currpid;
@@ -59,7 +65,7 @@ int handle_shared_get(future* futureRef,int** valueRef)
 	{	
 		return SYSERR;
 	}
-
+*/
 	return OK;
 }
 
@@ -94,7 +100,8 @@ syscall future_get(future* futureRef,int* valueRef){
 		status = handle_queue_get(futureRef, &valueRef);
 		break;
 	    default:
-		kprintf("Return get\n");
+		status = SYSERR;
+		
 		break;
     	}
 	
