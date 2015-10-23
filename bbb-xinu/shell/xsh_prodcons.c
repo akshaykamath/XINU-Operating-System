@@ -70,18 +70,22 @@ shellcmd xsh_prodcons(int nargs, char *args[])
 		return 1;
 	      }	
 
- 		resume( create(future_cons, 1024, 20, "fcons11", 1, f1) ); 	       
+ 			       
 		resume( create(future_prod, 1024, 20, "fprod12", 1, f1) );
+		//resume( create(future_prod, 1024, 20, "fprod13", 1, f1) );
+		resume( create(future_cons, 1024, 20, "fcons11", 1, f1) ); 	       
+	//	resume( create(future_cons, 1024, 20, "fcons12", 1, f1) ); 
 		// After Usage is completed delete the future
-		freefutures(&f1);
+		//freefutures(&f1);
 
- 		resume( create(future_cons, 1024, 20, "fcons21", 1, f2) ); 	        
-		resume( create(future_prod, 1024, 20, "fprod22", 1, f2) );
-		freefutures(&f2);
+
+ 		//resume( create(future_cons, 1024, 20, "fcons21", 1, f2) ); 	        
+		//resume( create(future_prod, 1024, 20, "fprod22", 1, f2) );
+		//freefutures(&f2);
 	      	
- 	      	resume( create(future_cons, 1024, 20, "fcons31", 1, f3) );
-	      	resume( create(future_prod, 1024, 20, "fprod32", 1, f3) );
-		freefutures(&f3);
+ 	      	//resume( create(future_cons, 1024, 20, "fcons31", 1, f3) );
+	      	//resume( create(future_prod, 1024, 20, "fprod32", 1, f3) );
+		//freefutures(&f3);
 
 	}
 	else
@@ -93,7 +97,7 @@ shellcmd xsh_prodcons(int nargs, char *args[])
 	      consumed = semcreate(1);
 	      produced = semcreate(0);
 	      resume( create(consumer, 1024, 20, "cons", 3, count, consumed, produced) );
-	      resume( create(producer, 1024, 20, "prod", 3, count,consumed, produced) );
+	      resume( create(producer, 1024, 20, "prod", 3, count, consumed, produced) );
 	} 
 
       return 0;

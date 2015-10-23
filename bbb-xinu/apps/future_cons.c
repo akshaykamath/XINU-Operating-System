@@ -9,7 +9,9 @@ uint32 future_cons(future *fut) {
 	restore(mask);
 	return SYSERR;
   }
+
   status = future_get(fut, &i);
+
   if (status == SYSERR) 
 	{
 	   intmask mask;
@@ -19,10 +21,11 @@ uint32 future_cons(future *fut) {
 	   return SYSERR;
 	}
 
+
    intmask mask;
    mask = disable();
-   kprintf("Process ID : %d\n",currpid);
-   kprintf("it consumed : %d\n",i);
+   kprintf("Process ID : %d consumed: %d\n",currpid, i);
+   future_free(&fut);
    restore(mask);
    return OK;
 }

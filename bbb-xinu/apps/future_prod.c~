@@ -2,7 +2,7 @@
 
 uint32 future_prod(future *fut) {
   int i, j,status;
-	
+kprintf("fprod : prod called\n");	
   if(!fut){
 	intmask mask;
 	mask = disable();
@@ -11,6 +11,7 @@ uint32 future_prod(future *fut) {
 	return SYSERR;
   }
   
+	
   j = fut->value;
   for (i=0; i<1000; i++) {
     j += i;
@@ -19,7 +20,7 @@ uint32 future_prod(future *fut) {
   if(status == SYSERR){
 	intmask mask;
 	mask = disable();
-	kprintf("fprod :future is either null or already in valid state\n");
+	kprintf("fprod :future is either null or empty state or already in valid state\n");
 	restore(mask);
   }
   return OK;

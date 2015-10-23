@@ -6,12 +6,11 @@ int TestAndSet(future* futureRef)
 	{
 		return 0;
 	}
-	intmask mask;
-	mask = disable();
+	
 	int oldval;
 	oldval = futureRef->lock;    
 	futureRef->lock = 1;
-	restore(mask);
+	
 	return oldval;
 }
 
