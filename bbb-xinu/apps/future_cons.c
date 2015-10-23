@@ -16,7 +16,9 @@ uint32 future_cons(future *fut) {
 	{
 	   intmask mask;
    	   mask = disable();
-	   kprintf("Process %d Error future locked by process: %d\n", currpid, fut->pid);  
+	 
+	   kprintf("Process %d: future locked or non-existent\n", currpid);  
+
 	   restore(mask);
 	   return SYSERR;
 	}

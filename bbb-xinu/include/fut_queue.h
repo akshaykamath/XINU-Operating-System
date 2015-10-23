@@ -13,4 +13,6 @@ int head;
 int initqu(queue *qs);
 int enq(queue *qs, int pid);
 int deq(queue *qs);
+int peek(queue *qs);
+int isEmpty(queue *qs);
 #endif /* _FUTURE_H_ */

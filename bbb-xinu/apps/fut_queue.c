@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include<fut_queue.h>
 
+/*initialize queue with head and tail set to zero*/
 int initqu(queue *qs)
 {
     qs->tail = 0;
@@ -36,4 +37,26 @@ pid32 deq(queue *qs)
     int pid = qs->queue[qs->head];    
     qs->head++;
     return pid ;
+}
+
+int peek(queue *qs)
+{
+	if(qs->head == qs->tail)
+    {
+        qs->head = 0;
+        qs->tail = 0;
+        return SYSERR;
+    }
+
+    int pid = qs->queue[qs->head];   
+    return pid ;	
+}
+
+int isEmpty(queue *qs)
+{
+	if(qs->head == qs->tail)
+{ 
+	return 1;
+}
+return 0;
 }

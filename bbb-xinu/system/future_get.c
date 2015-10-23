@@ -4,7 +4,7 @@
 
 int handle_exclusive_get(future* futureRef,int** valueRef)
 {
-		//kprintf("pid:%d, \n",futureRef->pid);
+	//kprintf("pid:%d, \n",futureRef->pid);
 		
 	if(futureRef->pid!=0)
 	{
@@ -41,41 +41,66 @@ int handle_exclusive_get(future* futureRef,int** valueRef)
 
 int handle_shared_get(future* futureRef,int** valueRef)
 {
-	/*if (futureRef->state == FUTURE_EMPTY) 
+	//kprintf("Shared get called");
+	//kprintf("Future state is %d\n",futureRef->state);
+	//kprintf("Consumer Process Id : %d\n",currpid);
+	
+
+	if (futureRef->state == FUTURE_EMPTY || futureRef->state == FUTURE_WAITING || (futureRef->state == FUTURE_VALID && futureRef->pid != 0)) 
 	{
 		futureRef->state = FUTURE_WAITING;
-		futureRef->pid = currpid;
+		//futureRef->pid = currpid;
 		kprintf("suspend process %d\n",currpid);	
 		enq(&futureRef->get_queue, currpid);
 		suspend(currpid);		
 		resched();
-		**valueRef = *futureRef->value;			
+		futureRef->pid = 0;
+		kprintf("Resuming process ID: %d\n",currpid);
+		**valueRef = futureRef->value;			
+		return OK;
+	}
+//
+	if(futureRef->state == FUTURE_VALID)
+	{
+	
+		**valueRef = futureRef->value;
 		return OK;
 	}
 
-	if(futureRef->state == FUTURE_VALID)
-	{
-		futureRef->state = FUTURE_EMPTY;
-		futureRef->pid = 0;
-		**valueRef = *futureRef->value;	
-		return OK;
-	}
-	
-	if(futureRef->state == FUTURE_WAITING  )
-	{	
-		return SYSERR;
-	}
-*/
 	return OK;
 }
 
 int handle_queue_get(future* futureRef,int** valueRef)
 {
-	printf("3\n");
-	return 0;
+	/*If a thread is calling future_get and there are threads waiting to set value in set_queue then thread should release only one thread from set_queue and should get the value set by thread just 		  released from set_queue. If there is no thread waiting in set_queue to set the value then thread calling future_get should enqueue itself in get_queue.*/
+	if(futureRef->state == FUTURE_WAITING)
+	{
+		pid32 procID = deq(&futureRef->set_queue);
+		if(procID > 0)
+		{
+			resume(procID);
+			**valueRef = futureRef->value;
+			return OK;
+		}
+	}else if(futureRef->state == FUTURE_EMPTY)
+	{
+		futureRef->state == FUTURE_WAITING;
+		futureRef->pid = currpid;
+		enq(&futureRef->get_queue, currpid);
+		kprintf("Suspending consumer process %d : \n",currpid);
+		suspend(currpid);		
+		resched();
+		return OK;
+        }else if(futureRef->state == FUTURE_VALID)
+	{
+		**valueRef = futureRef->value;
+		return OK;
+		
+	}
+	return OK;
 }
 
-/*if a thread calls future_get() on future in FUTURE_EMPTY, then the calling thread should block and its thread id should get stored in the pid field of the future. Now subsequent calls to future_get() on a future should fail with SYSERR*/
+
 syscall future_get(future* futureRef,int* valueRef){
 
 	intmask mask;
@@ -91,12 +116,15 @@ syscall future_get(future* futureRef,int* valueRef){
     	switch(futureRef->flag)
     	{
 	    case FUTURE_EXCLUSIVE:
+		kprintf("Calling exclusive get for consumer process id %d\n",currpid);
 		status = handle_exclusive_get(futureRef, &valueRef);
 		break;
 	    case FUTURE_SHARED:
+		kprintf("Calling shared get for consumer process id %d\n",currpid);
 		status = handle_shared_get(futureRef, &valueRef);
 		break;
 	    case FUTURE_QUEUE:
+		kprintf("Calling queue get for consumer process id %d\n",currpid);
 		status = handle_queue_get(futureRef, &valueRef);
 		break;
 	    default:

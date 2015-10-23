@@ -21,11 +21,10 @@
 typedef struct futent
 {
    int value;
-
    int flag;		
    int state;         	
    pid32 pid;
-   int lock;
+	int lock;
    queue *set_queue;     
    queue *get_queue;
 } future;
