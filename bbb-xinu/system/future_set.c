@@ -59,55 +59,48 @@ int handle_shared_set(future* futureRef,int* valueRef, intmask mask)
 
 int handle_queue_set(future* futureRef,int* valueRef)
 {
-	/*if(futureRef->state == FUTURE_VALID || futureRef->state == FUTURE_EMPTY)
-	{
-		return SYSERR;
-	}
-	else if(futureRef->state == FUTURE_WAITING)
-	{		
-		futureRef->value = valueRef;		
-		futureRef->state= FUTURE_VALID;	
-		int resProc = deq(&futureRef->get_queue);
-		kprintf("resume process %d\n",resProc);	
-		//Use ready with RESCHED_NO to add all suspended processes from queue and then call resched
-		resume(resProc);
-		resched();
-		
-		return OK;
-	}
-
-	return 0;*/
-
-
 	/*Case 1- If a thread is calling future_set and there are threads waiting for value in get_queue then thread calling future_set should set the value and resume only one thread from get_queue based 		on first come first serve basis. If there is no thread waiting in get_queue then thread calling future_set should enqueue itself in set_queue.*/
+
+	//kprintf("set - future state %d : \n",futureRef->state);
+	//kprintf("set - Saved Pid flag %d: \n",futureRef->pid);
+	
 	if(futureRef->state == FUTURE_EMPTY)
 	{
 		//This is the case when there is no thread waiting for future
-		futureRef->state = FUTURE_WAITING;
-		futureRef->pid = currpid;
-		kprintf("suspend producer process %d\n",currpid);	
+		futureRef->value = *valueRef;	
+			
+		//kprintf("Suspending producer process %d\n",currpid);	
 		enq(&futureRef->set_queue, currpid);
-		suspend(currpid);		
-		resched();		
+		//suspend(currpid);		
+		resched();	
+		return OK;
 	}else if(futureRef->state == FUTURE_WAITING)
 	{
-		pid32 waitingProcID = deq(&futureRef->get_queue);
-		if(waitingProcID > 0){
+		
+		futureRef->value = *valueRef;
+		futureRef->state = FUTURE_VALID;
+		if(isEmpty(&futureRef->get_queue) == 0){
+			pid32 waitingProcID = deq(&futureRef->get_queue);
+			//kprintf("Resuming consumer process %d : \n",waitingProcID);
 			//There is atleast one process waiting for this set.I assume that this will always be true when state is WAITING
-			//What should happen to other waiting processes?
 			resume(waitingProcID);
-			return OK;
-		}	
+		}
+		else{
+			futureRef->value = *valueRef;	
+			enq(&futureRef->set_queue, currpid);	
+			resched();	
+		}
+		return OK;
+			
 	}else if(futureRef->state == FUTURE_VALID){
 	
-		 return SYSERR;
+		return OK;
 	
 	}
 	return OK;
 }
 
-/* If a thread calls future_set() on a future in the FUTURE_EMPTY state, then the value provided by  the future_set() call should get stored in the value field of the future and its state should change from FUTURE_WAITING to FUTURE_VALID. Then subsequent calls to future_set() for the same future should fail.
-*/
+
 syscall future_set(future* futureRef,int* valueRef){
 
 	intmask mask;
