@@ -5,17 +5,22 @@
 future* future_alloc(int future_flags){
 
 	/*only support FUTURE_EXCLUSIVE mode*/
-	if(future_flags != FUTURE_EXCLUSIVE){
+	/*if(future_flags != FUTURE_EXCLUSIVE){
 		intmask mask;
    		mask = disable();
 		kprintf("Only FUTURE_EXCLUSIVE mode is supported\n");
 		restore(mask);
 		return NULL;
-	}
+	}*/
 
 	future* futureVar;
 	futureVar = (struct future *)getmem(sizeof(future));
-
+	futureVar->set_queue = (struct Queue *)getmem(sizeof(struct Queue));
+	futureVar->get_queue = (struct Queue *)getmem(sizeof(struct Queue));
+	futureVar->pid=0;
+	initqu(&futureVar->get_queue);
+	initqu(&futureVar->set_queue);
+	
 	if((int32)futureVar == SYSERR) {
 		return NULL;
 	}

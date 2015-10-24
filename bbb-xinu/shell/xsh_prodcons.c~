@@ -61,9 +61,8 @@ shellcmd xsh_prodcons(int nargs, char *args[])
 	
 	if(useFutures)
 	{
-	      future * f1, *f2, *f3  ;
-	      f1 = future_alloc(FUTURE_EXCLUSIVE);
-	      
+	      future * f1, *f2, *f3;
+	      f1 = future_alloc(FUTURE_EXCLUSIVE);	      
 	      f2 = future_alloc(FUTURE_EXCLUSIVE);
 	      f3 = future_alloc(FUTURE_EXCLUSIVE);
 	      if(f1 == NULL || f2 == NULL || f3 == NULL)
@@ -71,18 +70,26 @@ shellcmd xsh_prodcons(int nargs, char *args[])
 		return 1;
 	      }	
 
- 		resume( create(future_cons, 1024, 20, "fcons11", 1, f1) ); 	       
-		resume( create(future_prod, 1024, 20, "fprod12", 1, f1) );
-		// After Usage is completed delete the future
-		freefutures(&f1);
+ 			       
 
- 		resume( create(future_cons, 1024, 20, "fcons21", 1, f2) ); 	        
-		resume( create(future_prod, 1024, 20, "fprod22", 1, f2) );
-		freefutures(&f2);
-	      	
- 	      	resume( create(future_cons, 1024, 20, "fcons31", 1, f3) );
-	      	resume( create(future_prod, 1024, 20, "fprod32", 1, f3) );
-		freefutures(&f3);
+
+		resume( create(future_cons, 1024, 20, "fcons3", 1, f1) ); 	       	
+		resume( create(future_cons, 1024, 20, "fcons1", 1, f1) ); 
+		resume( create(future_prod, 1024, 20, "fprod1", 1, f1) );		       
+		resume( create(future_cons, 1024, 20, "fcons1", 1, f1) );
+		resume( create(future_prod, 1024, 20, "fprod1", 1, f1) );
+		
+
+		resume( create(future_cons, 1024, 20, "fcons2", 1, f1) );
+		resume( create(future_prod, 1024, 20, "fprod1", 1, f1) );
+
+
+		/*resume( create(future_prod, 1024, 20, "fprod1", 1, f1) );
+		resume( create(future_cons, 1024, 20, "fcons3", 1, f1) ); 	       	
+		resume( create(future_cons, 1024, 20, "fcons1", 1, f1) );*/		
+		//resume( create(future_cons, 1024, 20, "fcons3", 1, f1) ); 	        	       
+
+		//freefutures(&f3);
 
 	}
 	else
@@ -94,7 +101,7 @@ shellcmd xsh_prodcons(int nargs, char *args[])
 	      consumed = semcreate(1);
 	      produced = semcreate(0);
 	      resume( create(consumer, 1024, 20, "cons", 3, count, consumed, produced) );
-	      resume( create(producer, 1024, 20, "prod", 3, count,consumed, produced) );
+	      resume( create(producer, 1024, 20, "prod", 3, count, consumed, produced) );
 	} 
 
       return 0;

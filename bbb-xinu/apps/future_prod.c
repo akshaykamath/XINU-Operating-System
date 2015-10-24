@@ -2,7 +2,7 @@
 
 uint32 future_prod(future *fut) {
   int i, j,status;
-	
+
   if(!fut){
 	intmask mask;
 	mask = disable();
@@ -11,8 +11,9 @@ uint32 future_prod(future *fut) {
 	return SYSERR;
   }
   
+	
   j = fut->value;
-  for (i=0; i<1000; i++) {
+  for (i=0; i<10; i++) {
     j += i;
   }
   status = future_set(fut, &j);

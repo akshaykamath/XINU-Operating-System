@@ -1,0 +1,28 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#include<fut_queue.h>
+
+int enqueue(queue *qs, int pid)
+{
+    if(qs->tail == MAX_SIZE)
+    {
+        return -1;
+    }
+
+    qs->queue[qs->tail++] = pid;
+    return 0;
+}
+
+int dequeue(queue *qs)
+{
+    // queue is empty.. reset
+    if(qs->head == qs->tail)
+    {
+        qs->head = 0;
+        qs->tail = 0;
+        return -1;
+    }
+
+    return qs->queue[qs->head++];
+}
