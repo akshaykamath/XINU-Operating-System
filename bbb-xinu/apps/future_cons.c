@@ -27,6 +27,7 @@ uint32 future_cons(future *fut) {
    intmask mask;
    mask = disable();
    kprintf("Process ID : %d consumed: %d\n",currpid, i);
+   // Uncomment free to test future_queue mode
    future_free(&fut);
    restore(mask);
    return OK;
