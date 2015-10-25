@@ -82,7 +82,7 @@ int handle_queue_set(future* futureRef,int* valueRef)
 		resched();
 		kprintf("set1: resumed %d\n", currpid);
 		// this producer is now resumed, just set the future and let the consumer know that the value is now set
-		//wait(futureRef->prodlock);
+		wait(futureRef->prodlock);
 		futureRef->value = *valueRef;
 		
 
@@ -117,7 +117,7 @@ int handle_queue_set(future* futureRef,int* valueRef)
 	if(isEmpty(&futureRef->set_queue) == 1 && isEmpty(&futureRef->get_queue) == 0)
 	{
 
-		//wait(futureRef->prodlock);
+		wait(futureRef->prodlock);
 		futureRef->value = *valueRef;
 
 		pid32 getProcID = deq(&futureRef->get_queue);		
@@ -141,7 +141,8 @@ int handle_queue_set(future* futureRef,int* valueRef)
 	resched();
 	kprintf("set3: resumed %d\n", currpid);
 	// this producer is now resumed, just set the future and let the consumer know that the value is now set
-	//wait(futureRef->prodlock);
+	
+	wait(futureRef->prodlock);	
 	futureRef->value = *valueRef;
 	
 

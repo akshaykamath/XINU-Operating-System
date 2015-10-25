@@ -79,6 +79,10 @@ int handle_queue_get(future* futureRef,int** valueRef)
 		// resume the set process
 		pid32 setProcID = deq(&futureRef->set_queue);		
 		kprintf("get1: resuming %d\n", setProcID);
+
+	//	if(futureRef->prodlock < 0)
+	//		signal(futureRef->prodlock);
+
 		resume(setProcID);	
 		futureRef->state = FUTURE_WAITING;	
 		wait(futureRef->lock);
@@ -89,9 +93,15 @@ int handle_queue_get(future* futureRef,int** valueRef)
 			futureRef->state = FUTURE_WAITING;
 		else
 			futureRef->state = FUTURE_EMPTY;
-	//	signal(futureRef->prodlock);
-		ReleaseLock(&futureRef);
+	
+		if(futureRef->prodlock < 0)
+		{
+			kprintf("get1: signalling producer");
+			signal(futureRef->prodlock);
+		}	
+
 		futureRef->pid = 0;
+
 		return OK;
 	}
 
@@ -100,6 +110,8 @@ int handle_queue_get(future* futureRef,int** valueRef)
 	{
 		pid32 setProcID = deq(&futureRef->set_queue);		
 		//kprintf("get2: resuming %d\n", setProcID);
+		//if(futureRef->prodlock < 0)
+		//	signal(futureRef->prodlock);
 		resume(setProcID);	
 		enq(&futureRef->get_queue, currpid);
 		futureRef->state = FUTURE_WAITING;
@@ -114,8 +126,10 @@ int handle_queue_get(future* futureRef,int** valueRef)
 			futureRef->state = FUTURE_EMPTY;
 		**valueRef = futureRef->value;			
 		futureRef->pid = 0;
-		ReleaseLock(&futureRef);
-	//	signal(futureRef->prodlock);
+		
+			kprintf("get2: signalling producer");
+			signal(futureRef->prodlock);
+			
 		return OK;		
 	}
 	
@@ -136,7 +150,11 @@ int handle_queue_get(future* futureRef,int** valueRef)
 
 	**valueRef = futureRef->value;	
 	futureRef->pid = 0;
-	//signal(futureRef->prodlock);
+
+	
+			kprintf("get3: signalling producer");
+			signal(futureRef->prodlock);
+	
 	return OK;		
 }
 
