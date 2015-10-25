@@ -6,7 +6,7 @@
 /*initialize queue with head and tail set to zero*/
 int initqu(queue *qs)
 {
-    qs->tail = 0;
+   qs->tail = 0;
     qs->head = 0;
     return 0;
 }
@@ -26,6 +26,7 @@ int enq(queue *qs, pid32 pid)
 
 pid32 deq(queue *qs)
 {
+
     // Underflow: queue is empty.. reset
     if(qs->head == qs->tail)
     {
@@ -36,15 +37,19 @@ pid32 deq(queue *qs)
 
     int pid = qs->queue[qs->head];    
     qs->head++;
+	//kprintf("currpid: %d hd: %d tl: %d\n",currpid,  qs->head, qs->tail);
     return pid ;
 }
 
 int peek(queue *qs)
 {
+	//kprintf("q addr: %d\n",qs->head);
+	
 	if(qs->head == qs->tail)
     {
         qs->head = 0;
         qs->tail = 0;
+	kprintf("dd %d\n", SYSERR);
         return SYSERR;
     }
 
@@ -54,9 +59,15 @@ int peek(queue *qs)
 
 int isEmpty(queue *qs)
 {
+	//kprintf("currpid: %d hd: %d tl: %d\n",currpid,  qs->head, qs->tail);
 	if(qs->head == qs->tail)
-{ 
-	return 1;
+	{ 
+		return 1;
+	}
+	return 0;
 }
-return 0;
+
+int debuga(queue *qs)
+{
+//	kprintf("currpid: %d hd: %d tl: %d\n",currpid,  qs->head, qs->tail);
 }

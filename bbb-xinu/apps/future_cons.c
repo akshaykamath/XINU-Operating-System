@@ -11,7 +11,6 @@ uint32 future_cons(future *fut) {
   }
 
   status = future_get(fut, &i);
-
   if (status == SYSERR) 
 	{
 	   intmask mask;
@@ -27,8 +26,11 @@ uint32 future_cons(future *fut) {
    intmask mask;
    mask = disable();
    kprintf("Process ID : %d consumed: %d\n",currpid, i);
-   // Uncomment free to test future_queue mode
-   future_free(&fut);
+   if(fut->flag != FUTURE_QUEUE)
+   {
+   	future_free(&fut);
+   }
+
    restore(mask);
    return OK;
 }

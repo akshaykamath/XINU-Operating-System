@@ -24,7 +24,6 @@ typedef struct futent
    int flag;		
    int state;         	
    pid32 pid;
-   int lock;
    queue *set_queue;     
    queue *get_queue;
 } future;
