@@ -11,7 +11,7 @@ uint32 future_cons(future *fut) {
   }
 
   status = future_get(fut, &i);
-
+  kprintf("SAmee : %d\n",fut->pid);
   if (status == SYSERR) 
 	{
 	   intmask mask;
@@ -27,10 +27,15 @@ uint32 future_cons(future *fut) {
    intmask mask;
    mask = disable();
    kprintf("Process ID : %d consumed: %d\n",currpid, i);
-   if(fit->flag != FUTURE_QUEUE)
+   if(fut->flag != FUTURE_QUEUE)
    {
    	future_free(&fut);
    }
+   
+   else{
+	
+	kprintf("Status :%d\n",fut->state);
+	}
 
    restore(mask);
    return OK;

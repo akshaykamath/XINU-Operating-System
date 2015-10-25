@@ -15,7 +15,7 @@ int handle_exclusive_get(future* futureRef,int** valueRef)
 	{
 		futureRef->state = FUTURE_WAITING;
 		futureRef->pid = currpid;
-		kprintf("suspend process %d\n",currpid);			
+		kprintf("suspending consumer %d\n",currpid);			
 		suspend(currpid);		
 		resched();
 		**valueRef = futureRef->value;			
@@ -41,20 +41,17 @@ int handle_exclusive_get(future* futureRef,int** valueRef)
 
 int handle_shared_get(future* futureRef,int** valueRef)
 {
-	//kprintf("Shared get called");
-	//kprintf("Future state is %d\n",futureRef->state);
-	//kprintf("Consumer Process Id : %d\n",currpid);
 
 	if (futureRef->state == FUTURE_EMPTY || futureRef->state == FUTURE_WAITING || (futureRef->state == FUTURE_VALID && futureRef->pid != 0)) 
 	{
 		futureRef->state = FUTURE_WAITING;
 
-		kprintf("suspend process %d\n",currpid);	
+		kprintf("suspending consumer %d\n",currpid);	
 		enq(&futureRef->get_queue, currpid);
 		suspend(currpid);		
 		resched();
 		futureRef->pid = 0;
-		kprintf("Resuming process ID: %d\n",currpid);
+		kprintf("Resuming consumer: %d\n",currpid);
 		**valueRef = futureRef->value;			
 		return OK;
 	}
@@ -77,30 +74,21 @@ int handle_queue_get(future* futureRef,int** valueRef)
 	if(isEmpty(&futureRef->set_queue) == 0 && isEmpty(&futureRef->get_queue) == 1)
 	{
 		// resume the set process
-		pid32 setProcID = deq(&futureRef->set_queue);		
-		kprintf("get1: resuming %d\n", setProcID);
-
-	//	if(futureRef->prodlock < 0)
-	//		signal(futureRef->prodlock);
+		pid32 setProcID = deq(&futureRef->set_queue);	
+		futureRef->pid = currpid;		
+		kprintf("get1: resuming producer %d\n", setProcID);
 
 		resume(setProcID);	
-		futureRef->state = FUTURE_WAITING;	
-		wait(futureRef->lock);
-		kprintf("get1: signalled %d\n", setProcID);
+		futureRef->state = FUTURE_WAITING;
+		
 		**valueRef = futureRef->value;	
 
 		if(isEmpty(&futureRef->get_queue) == 0)
 			futureRef->state = FUTURE_WAITING;
 		else
 			futureRef->state = FUTURE_EMPTY;
-	
-		if(futureRef->prodlock < 0)
-		{
-			kprintf("get1: signalling producer");
-			signal(futureRef->prodlock);
-		}	
 
-		futureRef->pid = 0;
+		//futureRef->pid = 0;
 
 		return OK;
 	}
@@ -109,26 +97,22 @@ int handle_queue_get(future* futureRef,int** valueRef)
 	if(isEmpty(&futureRef->set_queue) == 0 && isEmpty(&futureRef->get_queue) == 0)
 	{
 		pid32 setProcID = deq(&futureRef->set_queue);		
-		//kprintf("get2: resuming %d\n", setProcID);
-		//if(futureRef->prodlock < 0)
-		//	signal(futureRef->prodlock);
+		
 		resume(setProcID);	
 		enq(&futureRef->get_queue, currpid);
 		futureRef->state = FUTURE_WAITING;
-		//kprintf("get2: suspending %d\n", currpid);
+		futureRef->pid = currpid;
+		kprintf("get2: suspending consumer %d\n", currpid);
 		suspend(currpid);		
 		resched();
-		kprintf("get2: resumed %d\n", setProcID);
+		kprintf("get2: resuming producer %d\n", setProcID);
 		
 		if(isEmpty(futureRef->get_queue) == 0)
 			futureRef->state = FUTURE_WAITING;
-		else
+		else{
 			futureRef->state = FUTURE_EMPTY;
 		**valueRef = futureRef->value;			
-		futureRef->pid = 0;
-		
-			kprintf("get2: signalling producer");
-			signal(futureRef->prodlock);
+		//futureRef->pid = 0;
 			
 		return OK;		
 	}
@@ -138,22 +122,20 @@ int handle_queue_get(future* futureRef,int** valueRef)
 	enq(&futureRef->get_queue, currpid);	
 
 	futureRef->state = FUTURE_WAITING;
-	//kprintf("get3: suspending %d\n", currpid);
+	futureRef->pid = currpid;
+	kprintf("get3: suspending consumer %d\n", currpid);
 	suspend(currpid);		
 	resched();
 
-	kprintf("get3: resumed %d\n", currpid);
-	if(isEmpty(&futureRef->get_queue) == 0)
-		futureRef->state = FUTURE_WAITING;
-	else
-		futureRef->state = FUTURE_EMPTY;
-
+	kprintf("get3: resuming consumer %d\n", currpid);
+	if(isEmpty(&futureRef->get_queue) == 1){
+		futureRef->state = FUTURE_WAITING;	
+	}
+	else{
+		futureRef->state = FUTURE_EMPTY;futureRef->pid = 0;
+	}
 	**valueRef = futureRef->value;	
-	futureRef->pid = 0;
-
-	
-			kprintf("get3: signalling producer");
-			signal(futureRef->prodlock);
+	//futureRef->pid = 0;
 	
 	return OK;		
 }

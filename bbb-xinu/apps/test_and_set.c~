@@ -8,15 +8,15 @@ int TestAndSet(future* futureRef)
 	}
 	
 	int oldval;
-	oldval = futureRef->prodlock;    
-	futureRef->lock = 1;
+	//oldval = futureRef->prodlock;    
+	//futureRef->prodlock = 1;
 	
 	return oldval;
 }
 
 void ReleaseLock(future* futureRef)
 {
-	futureRef->lock = 0;
+	futureRef->prodlock = 0;
 	
 }
 

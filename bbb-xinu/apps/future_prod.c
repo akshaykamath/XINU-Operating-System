@@ -16,22 +16,20 @@ uint32 future_prod(future *fut) {
    {
    	  intmask mask;
 	  mask = disable();	
-
-	  j = fut->value;
-	  for (i=0; i<10; i++) {
+	  j = 0;
+	  for (i=0; i<1000; i++) {
 	    j += i;
 	  }
 	  
 	  status = future_set(fut, &j);
 	  kprintf("currpid :%d produced: %d, future set = %d\n",currpid, j, fut->value);
-	  restore(mask);
-	 
+	  restore(mask);	 
 	  
    }
   else
 {
 	j = fut->value;
-	  for (i=0; i<10; i++) {
+	  for (i=0; i<1000; i++) {
 	    j += i;
 	  }
 	  

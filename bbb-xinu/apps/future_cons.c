@@ -11,7 +11,6 @@ uint32 future_cons(future *fut) {
   }
 
   status = future_get(fut, &i);
-
   if (status == SYSERR) 
 	{
 	   intmask mask;
