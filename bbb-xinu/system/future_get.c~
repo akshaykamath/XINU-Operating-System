@@ -61,7 +61,7 @@ int handle_shared_get(future* futureRef,int** valueRef)
 
 	if(futureRef->state == FUTURE_VALID)
 	{
-	
+		
 		**valueRef = futureRef->value;
 		return OK;
 	}
@@ -72,45 +72,72 @@ int handle_shared_get(future* futureRef,int** valueRef)
 int handle_queue_get(future* futureRef,int** valueRef)
 {
 	/*If a thread is calling future_get and there are threads waiting to set value in set_queue then thread should release only one thread from set_queue and should get the value set by thread just 		  released from set_queue. If there is no thread waiting in set_queue to set the value then thread calling future_get should enqueue itself in get_queue.*/
-	//kprintf("get - future state : %d  \n",futureRef->state);
-	//kprintf("get - Saved Pid flag : %d \n ",futureRef->pid);
-	if(futureRef->state == FUTURE_WAITING && isEmpty(futureRef->set_queue) == 0)
+
+	// if only set queue is not empty
+	if(isEmpty(&futureRef->set_queue) == 0 && isEmpty(&futureRef->get_queue) == 1)
 	{
-		pid32 procID = deq(&futureRef->set_queue);
-		enq(&futureRef->get_queue, currpid);
-		resume(procID);
-		**valueRef = futureRef->value;
-		futureRef->state = FUTURE_EMPTY;
+		// resume the set process
+		pid32 setProcID = deq(&futureRef->set_queue);		
+		kprintf("get1: resuming %d\n", setProcID);
+		resume(setProcID);	
+		futureRef->state = FUTURE_WAITING;	
+		wait(futureRef->lock);
+		kprintf("get1: signalled %d\n", setProcID);
+		**valueRef = futureRef->value;	
+
+		if(isEmpty(&futureRef->get_queue) == 0)
+			futureRef->state = FUTURE_WAITING;
+		else
+			futureRef->state = FUTURE_EMPTY;
+	//	signal(futureRef->prodlock);
+		ReleaseLock(&futureRef);
+		futureRef->pid = 0;
 		return OK;
-	
 	}
 
-	if(futureRef->state == FUTURE_WAITING && isEmpty(futureRef->set_queue) == 1)
+	// else if both the queues have values
+	if(isEmpty(&futureRef->set_queue) == 0 && isEmpty(&futureRef->get_queue) == 0)
 	{
+		pid32 setProcID = deq(&futureRef->set_queue);		
+		//kprintf("get2: resuming %d\n", setProcID);
+		resume(setProcID);	
 		enq(&futureRef->get_queue, currpid);
-		suspend(currpid);
-		resched();
-		**valueRef = futureRef->value;
 		futureRef->state = FUTURE_WAITING;
-		return OK;
-	
-	}
-
-	else if(futureRef->state == FUTURE_EMPTY || isEmpty(futureRef->set_queue) == 0)
-	{
-		futureRef->state = FUTURE_WAITING;
-		enq(&futureRef->get_queue, currpid);
+		//kprintf("get2: suspending %d\n", currpid);
 		suspend(currpid);		
 		resched();
-		**valueRef = futureRef->value;
-		futureRef->state = FUTURE_WAITING;
-		return OK;
-        }else if(futureRef->state == FUTURE_VALID)
-	{
-		**valueRef = futureRef->value;
+		kprintf("get2: resumed %d\n", setProcID);
+		
+		if(isEmpty(futureRef->get_queue) == 0)
+			futureRef->state = FUTURE_WAITING;
+		else
+			futureRef->state = FUTURE_EMPTY;
+		**valueRef = futureRef->value;			
+		futureRef->pid = 0;
+		ReleaseLock(&futureRef);
+	//	signal(futureRef->prodlock);
 		return OK;		
 	}
-	return OK;
+	
+	// if none of the above cases apply, just enqueue the current process (there is no producer in queue to produce, just wait)
+
+	enq(&futureRef->get_queue, currpid);	
+
+	futureRef->state = FUTURE_WAITING;
+	//kprintf("get3: suspending %d\n", currpid);
+	suspend(currpid);		
+	resched();
+
+	kprintf("get3: resumed %d\n", currpid);
+	if(isEmpty(&futureRef->get_queue) == 0)
+		futureRef->state = FUTURE_WAITING;
+	else
+		futureRef->state = FUTURE_EMPTY;
+
+	**valueRef = futureRef->value;	
+	futureRef->pid = 0;
+	//signal(futureRef->prodlock);
+	return OK;		
 }
 
 

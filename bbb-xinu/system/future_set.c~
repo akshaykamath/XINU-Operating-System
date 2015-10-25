@@ -61,42 +61,117 @@ int handle_queue_set(future* futureRef,int* valueRef)
 {
 	/*Case 1- If a thread is calling future_set and there are threads waiting for value in get_queue then thread calling future_set should set the value and resume only one thread from get_queue based 		on first come first serve basis. If there is no thread waiting in get_queue then thread calling future_set should enqueue itself in set_queue.*/
 
-	//kprintf("set - future state %d : \n",futureRef->state);
-	//kprintf("set - Saved Pid flag %d: \n",futureRef->pid);
+	//int getval = isEmpty(&futureRef->get_queue);
+	//int setval = isEmpty(&futureRef->set_queue);
 	
-	if(futureRef->state == FUTURE_EMPTY)
+//	kprintf("getq: %d  setq: %d",getval, setval);
+
+
+	// if both get and set queue are non empty
+	if(isEmpty(&futureRef->get_queue) == 0 && isEmpty(&futureRef->set_queue) == 0)
 	{
-		//This is the case when there is no thread waiting for future
-		futureRef->value = *valueRef;	
-			
-		//kprintf("Suspending producer process %d\n",currpid);	
+		//kprintf("here1");
+		// resume the set process
+		pid32 setProcID = deq(&futureRef->set_queue);
+		kprintf("set1: resuming %d\n", setProcID);
+		resume(setProcID);
+		// and just enque the new producer and wait for its turn to produce	
 		enq(&futureRef->set_queue, currpid);
-		//suspend(currpid);		
-		resched();	
-		return OK;
-	}else if(futureRef->state == FUTURE_WAITING)
-	{
-		
+		kprintf("set1: suspending %d\n", currpid);
+		suspend(currpid);		
+		resched();
+		kprintf("set1: resumed %d\n", currpid);
+		// this producer is now resumed, just set the future and let the consumer know that the value is now set
+		//wait(futureRef->prodlock);
+		TestAndSet(&futureRef);
 		futureRef->value = *valueRef;
-		futureRef->state = FUTURE_VALID;
-		if(isEmpty(&futureRef->get_queue) == 0){
-			pid32 waitingProcID = deq(&futureRef->get_queue);
-			//kprintf("Resuming consumer process %d : \n",waitingProcID);
-			//There is atleast one process waiting for this set.I assume that this will always be true when state is WAITING
-			resume(waitingProcID);
+		
+
+		// if lock is set
+		// notify the customer if its waiting on a sem lock, else just resume the first consumer in get queue
+		// this happens only if there was nothing in the get queue and atleast one producer in set queue,
+		// then the consumer just runs the first producer and waits for the producer to complete)
+		if(futureRef->lock < 0)
+		{	
+			futureRef->state= FUTURE_VALID;
+			kprintf("set1: signalling from %d\n", currpid);
+			signal(futureRef->lock);
 		}
-		else{
-			futureRef->value = *valueRef;	
-			enq(&futureRef->set_queue, currpid);	
-			resched();	
+		else
+		{
+			// deque from get queue and resume the process
+			pid32 procID = deq(&futureRef->get_queue);
+			if(isEmpty(&futureRef->get_queue) == 0)
+				futureRef->state = FUTURE_WAITING;
+			else
+				futureRef->state = FUTURE_VALID;
+
+			futureRef->pid = procID;
+			kprintf("set1: resuming %d\n", procID);		
+			resume(procID);		
 		}
+
 		return OK;
-			
-	}else if(futureRef->state == FUTURE_VALID){
-	
-		return SYSERR;
-	
 	}
+
+	// else if set queue is empty and there are consumers in the get queue, produce the value and resume the first consumer in queue
+	if(isEmpty(&futureRef->set_queue) == 1 && isEmpty(&futureRef->get_queue) == 0)
+	{
+
+		//wait(futureRef->prodlock);
+		TestAndSet(&futureRef);
+		futureRef->value = *valueRef;
+
+		pid32 getProcID = deq(&futureRef->get_queue);		
+		//kprintf("set is empty get is not, produce %d and resume cons: %d", futureRef->value, getProcID);
+		futureRef->pid = getProcID;
+		
+		if(isEmpty(&futureRef->get_queue) == 0)
+			futureRef->state = FUTURE_WAITING;
+		else
+			futureRef->state = FUTURE_VALID;
+		//kprintf("set2: resuming %d\n", getProcID);
+		resume(getProcID);
+		
+		return OK;		
+	}
+	//		kprintf("here3");
+	// else: there is nothing in the get queue and nothing in the set queue, just enqueue the producer and wait for resumption
+	enq(&futureRef->set_queue, currpid);
+	kprintf("set3: suspending %d\n", currpid);
+	suspend(currpid);		
+	resched();
+	kprintf("set3: resumed %d\n", currpid);
+	// this producer is now resumed, just set the future and let the consumer know that the value is now set
+	//wait(futureRef->prodlock);
+		TestAndSet(&futureRef) ;
+	futureRef->value = *valueRef;
+	
+
+	// if lock is set
+	// notify the customer if its waiting on a sem lock, else just resume the first consumer in get queue
+	// this happens only if there was nothing in the get queue and atleast one producer in set queue,
+	// then the consumer just runs the first producer and waits for the producer to complete)
+	if(futureRef->lock < 0)
+	{	
+		futureRef->state= FUTURE_VALID;
+		kprintf("set3: signalling from %d\n", currpid);
+		signal(futureRef->lock);
+	}
+	else
+	{
+		// deque from get queue and resume the process
+		pid32 procID = deq(&futureRef->get_queue);
+		if(isEmpty(&futureRef->get_queue) == 0)
+			futureRef->state = FUTURE_WAITING;
+		else
+			futureRef->state = FUTURE_VALID;
+
+		futureRef->pid = procID;		
+		kprintf("set2: resuming %d", procID);
+		resume(procID);		
+	}
+
 	return OK;
 }
 

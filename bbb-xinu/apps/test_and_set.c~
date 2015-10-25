@@ -8,7 +8,7 @@ int TestAndSet(future* futureRef)
 	}
 	
 	int oldval;
-	oldval = futureRef->lock;    
+	oldval = futureRef->prodlock;    
 	futureRef->lock = 1;
 	
 	return oldval;

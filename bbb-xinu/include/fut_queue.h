@@ -5,8 +5,9 @@
 
 typedef struct Queue
 {
-int queue[MAX_SIZE];
+
 int tail;
+int queue[MAX_SIZE];
 int head;
 }queue;
 
