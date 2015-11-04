@@ -31,7 +31,7 @@ pid32	create(
 	if (ssize < MINSTK)
 		ssize = MINSTK;
 	ssize = (uint32) roundew(ssize);
-	if (((saddr = (uint32 *)getstk(ssize)) ==
+	if (((saddr = (uint32 *)getpstk(ssize)) ==
 	    (uint32 *)SYSERR ) ||
 	    (pid=newpid()) == SYSERR || priority < 1 ) {
 		restore(mask);

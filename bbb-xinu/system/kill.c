@@ -60,7 +60,7 @@ syscall	kill(
 
 	// Stack space consumptions ends
 
-	freestk(prptr->prstkbase, prptr->prstklen);
+	//freestk(prptr->prstkbase, prptr->prstklen);
 
 	switch (prptr->prstate) {
 	case PR_CURR:

@@ -31,7 +31,7 @@ pid32	create(
 	if (ssize < MINSTK)
 		ssize = MINSTK;
 	ssize = (uint32) roundew(ssize);
-	if (((saddr = (uint32 *)getstk(ssize)) ==
+	if (((saddr = (uint32 *)getpstk(ssize)) ==
 	    (uint32 *)SYSERR ) ||
 	    (pid=newpid()) == SYSERR || priority < 1 ) {
 		restore(mask);
@@ -52,6 +52,27 @@ pid32	create(
 	prptr->prsem = -1;
 	prptr->prparent = (pid32)getpid();
 	prptr->prhasmsg = FALSE;
+
+	//Stack consumption code starts
+	int cnt=1;
+	char * startAddr = (char *)saddr;
+	kprintf("Allocated Stack of size %d bytes \n",ssize);
+
+	while(1)
+	{
+		if(cnt == ssize)
+		{
+			//kprintf("addr: %u, cnt:%d\n",startAddr, cnt);
+			kprintf("Intialized %d bytes with dummy values \n",cnt);
+			break;
+		}
+
+		*startAddr = 'f';
+		startAddr--;
+		cnt++;
+	}
+	
+	//Stack consumption code ends
 
 	/* set up initial device descriptors for the shell		*/
 	prptr->prdesc[0] = CONSOLE;	/* stdin  is CONSOLE device	*/

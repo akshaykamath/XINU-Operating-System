@@ -29,6 +29,37 @@ syscall	kill(
 	for (i=0; i<3; i++) {
 		close(prptr->prdesc[i]);
 	}
+
+	// Stack space consumptions starts
+	uint32 ssize = prptr->prstklen;
+	char * startAddr = (char *)prptr->prstkbase;
+	kprintf("Stack size %d bytes\n",ssize);
+	int cnt=1;
+	int cntRemaining = 0;
+	
+	while(1)
+	{
+		if(cnt == ssize)
+		{
+			break;
+		}
+
+		if(*startAddr == 'f')
+		{
+		  cntRemaining ++;
+		}
+		
+		startAddr--;
+		cnt++;
+	}
+	
+	int unused = ssize - cntRemaining;
+	kprintf("Stack space used %u bytes\n", unused );
+	kprintf("Stack space unused %u bytes\n", cntRemaining);
+	//kprintf("Stack address %u \n", startAddr);
+
+	// Stack space consumptions ends
+
 	freestk(prptr->prstkbase, prptr->prstklen);
 
 	switch (prptr->prstate) {

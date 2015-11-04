@@ -9,6 +9,13 @@
  */
 
 void test(int);
+typedef struct charStr
+{
+   int a;
+   int b;
+   char c;
+} charStr;
+
 shellcmd xsh_printmem(int nargs, char *args[]) {
 
 	/* Output info for '--help' argument */
@@ -37,10 +44,16 @@ shellcmd xsh_printmem(int nargs, char *args[]) {
 		fprintf(stderr, "%s: too many arguments\n", args[0]);
 		return 1;
 	}
-
+	
 	
 	intmask	mask;
 	mask = disable();
+
+	
+	//Testing getpmem
+	charStr * var = (struct charStr *)getpmem(sizeof(charStr));
+	charStr * va2 = (struct charStr *)getmem(sizeof(charStr));
+
 	resume( create(test, 1024, 20, "test1", 2, 2) );
 
 	//kprintf("Total Free Memory : %u bytes \n",memlist.mlength);

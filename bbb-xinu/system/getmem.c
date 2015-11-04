@@ -20,7 +20,7 @@ char  	*getmem(
 	}
 
 	nbytes = (uint32) roundmb(nbytes);	/* Use memblk multiples	*/
-
+	kprintf("getmem: allocated %u bytes\n",nbytes);
 	prev = &memlist;
 	curr = memlist.mnext;
 	while (curr != NULL) {			/* Search free list	*/
