@@ -6,7 +6,3 @@ The difference between getpstk (permanently allocate memory in stack) and getstk
 3. For both the allocations, we do not call free memory which allows the allocated space to reside permanently in memory and become unusable for any other process(s).
 4. For example, in our code, we have created a struct of 12 bytes, however, when getmem() is called for a pointer of this datatype, it gets rounded off to 16 bytes, whereas getpmem() allocates exactly 12 bytes.
 5. This would also hold true for getpstk().
-
-Team:
-Akshay Kamath (akkamath)
-Sameedha Bairagi (sbairagi)
