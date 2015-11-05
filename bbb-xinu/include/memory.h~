@@ -37,5 +37,5 @@ extern	int	bss;			/* Start of bss segment		*/
 extern	int	ebss;			/* End of bss segment		*/
 extern	int	end;			/* End of program		*/
 extern int simpleAlloc;
-extern sid32 simsem;
+
 

@@ -15,6 +15,7 @@ syscall	kill(
 	int32	i;			/* Index into descriptors	*/
 
 	mask = disable();
+	
 	if (isbadpid(pid) || (pid == NULLPROC)
 	    || ((prptr = &proctab[pid])->prstate) == PR_FREE) {
 		restore(mask);
@@ -29,6 +30,14 @@ syscall	kill(
 	for (i=0; i<3; i++) {
 		close(prptr->prdesc[i]);
 	}
+
+	if(simpleAlloc != currpid)
+	{
+		kprintf("free stack\n");
+		freestk(prptr->prstkbase, prptr->prstklen);
+	}
+	
+	simpleAlloc = 0;
 
 	// Stack space consumptions starts
 	uint32 ssize = prptr->prstklen;

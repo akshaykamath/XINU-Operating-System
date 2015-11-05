@@ -1,12 +1,12 @@
-/* getpstk.c - getpstk */
+/* getstk.c - getstk */
 
 #include <xinu.h>
 
 /*------------------------------------------------------------------------
- *  getpstk  -  Allocate stack memory, returning highest word address permanently
+ *  getstk  -  Allocate stack memory, returning highest word address
  *------------------------------------------------------------------------
  */
-char  	*getpstk(
+char  	*getstk(
 	  uint32	nbytes		/* Size of memory requested	*/
 	)
 {
@@ -19,6 +19,8 @@ char  	*getpstk(
 		restore(mask);
 		return (char *)SYSERR;
 	}
+
+	nbytes = (uint32) roundmb(nbytes);	/* Use mblock multiples	*/
 
 	prev = &memlist;
 	curr = memlist.mnext;
@@ -38,10 +40,12 @@ char  	*getpstk(
 		restore(mask);
 		return (char *)SYSERR;
 	}
-
-	fits->mlength -= nbytes;
-	fits = (struct memblk *)((uint32)fits + fits->mlength);
-
+	if (nbytes == fits->mlength) {		/* Block is exact match	*/
+		fitsprev->mnext = fits->mnext;
+	} else {				/* Remove top section	*/
+		fits->mlength -= nbytes;
+		fits = (struct memblk *)((uint32)fits + fits->mlength);
+	}
 	memlist.mlength -= nbytes;
 	restore(mask);
 	return (char *)((uint32) fits + nbytes - sizeof(uint32));

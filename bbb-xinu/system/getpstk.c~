@@ -20,6 +20,8 @@ char  	*getpstk(
 		return (char *)SYSERR;
 	}
 
+	
+
 	prev = &memlist;
 	curr = memlist.mnext;
 	fits = NULL;

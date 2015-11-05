@@ -6,6 +6,9 @@ local	int newpid();
 
 #define	roundew(x)	( (x+3)& ~0x3)
 
+int simpleAlloc = 0;
+sid32 simsem;
+
 /*------------------------------------------------------------------------
  *  create  -  create a process to start running a procedure
  *------------------------------------------------------------------------
@@ -31,11 +34,12 @@ pid32	create(
 	if (ssize < MINSTK)
 		ssize = MINSTK;
 	ssize = (uint32) roundew(ssize);
+		
 	if (((saddr = (uint32 *)getpstk(ssize)) ==
-	    (uint32 *)SYSERR ) ||
-	    (pid=newpid()) == SYSERR || priority < 1 ) {
-		restore(mask);
-		return SYSERR;
+		    (uint32 *)SYSERR ) ||
+		    (pid=newpid()) == SYSERR || priority < 1 ) {
+			restore(mask);
+			return SYSERR;
 	}
 
 	prcount++;

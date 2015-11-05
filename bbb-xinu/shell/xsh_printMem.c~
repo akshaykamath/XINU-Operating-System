@@ -36,6 +36,7 @@ shellcmd xsh_printmem(int nargs, char *args[]) {
 			return 1;
 		}
 	}
+		
 
 	/* Check argument count */
 	/* If argument count is greater than 2, then there are too many arguments*/
@@ -48,15 +49,16 @@ shellcmd xsh_printmem(int nargs, char *args[]) {
 	
 	intmask	mask;
 	mask = disable();
-
 	
+	simpleAlloc = currpid;
 	//Testing getpmem
 	charStr * var = (struct charStr *)getpmem(sizeof(charStr));
-	charStr * var = (struct charStr *)getmem(sizeof(charStr));
+	charStr * va2 = (struct charStr *)getmem(sizeof(charStr));
 
-	resume( create(test, 1024, 20, "test1", 2, 2) );
+	//resume( create(test, 1024, 20, "test1", 2, 2) );
 
 	//kprintf("Total Free Memory : %u bytes \n",memlist.mlength);
+	kprintf("##################Part 1 starts########\n");
 	int i = 0;
 	struct	memblk *curr;	/* Walk through memory list	*/
 	curr = &memlist;
@@ -66,7 +68,9 @@ shellcmd xsh_printmem(int nargs, char *args[]) {
 		kprintf("Address %u with %u bytes \n", curr, curr->mlength);
 		curr = curr->mnext;
 	}
+
 	kprintf("%d chunks of memory blocks available \n", i);	
+	kprintf("##################Part 1 Ends ########\n");
 	restore(mask);
 	return 0;
 }
