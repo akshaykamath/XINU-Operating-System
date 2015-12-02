@@ -102,6 +102,7 @@ shellcmd xsh_prodcons(int nargs, char *args[])
 	      produced = semcreate(0);
 	      resume( create(consumer, 1024, 20, "cons", 3, count, consumed, produced) );
 	      resume( create(producer, 1024, 20, "prod", 3, count, consumed, produced) );
+	      
 	} 
 
       return 0;

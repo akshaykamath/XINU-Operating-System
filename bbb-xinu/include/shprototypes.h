@@ -76,6 +76,9 @@ extern	shellcmd  xsh_help	(int32, char *[]);
 /* in file xsh_hello.c */
 extern	shellcmd  xsh_hello	(int32, char *[]);
 
+/* in file xsh_udpfuture.c */
+extern	shellcmd  xsh_udpfuture	(int32, char *[]);
+
 /* in file xsh_prodcons.c */
 extern	shellcmd  xsh_prodcons	(int32, char *[]);
 
