@@ -52,7 +52,6 @@ status	arp_resolve (
 	mask = disable();
 
 	int deletedArpCount = 0;
-	int loopCount = 0;
 	// Delete arp cache after 5 minutes
 	for (i=0; i<ARP_SIZ; i++) {
 		arptr = &arpcache[i];
