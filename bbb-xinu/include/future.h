@@ -39,5 +39,7 @@ int TestAndSet(future* );
 /* producer declaration */
 uint32 future_prod(future * fut);
 uint32 future_cons(future * fut);
+uint32 net_prod(future *fut);
+uint32 net_cons(future *fut);
  
 #endif /* _FUTURE_H_ */

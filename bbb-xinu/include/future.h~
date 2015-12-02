@@ -24,9 +24,6 @@ typedef struct futent
    int flag;		
    int state;         	
    pid32 pid;
-   //sid32 lock;  
-  // sid32 prodlock;
-   //int prodlock;
    queue *set_queue;     
    queue *get_queue;
 } future;
@@ -42,5 +39,7 @@ int TestAndSet(future* );
 /* producer declaration */
 uint32 future_prod(future * fut);
 uint32 future_cons(future * fut);
+uint32 net_prod(future *fut);
+uint32 net_cons(future *fut)
  
 #endif /* _FUTURE_H_ */
