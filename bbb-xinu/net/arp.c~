@@ -51,7 +51,8 @@ status	arp_resolve (
 
 	mask = disable();
 
-	int deletedArpCount = 0;
+	/*int deletedArpCount = 0;
+	int loopCount = 0;
 	// Delete arp cache after 5 minutes
 	for (i=0; i<ARP_SIZ; i++) {
 		arptr = &arpcache[i];
@@ -68,7 +69,7 @@ status	arp_resolve (
 	{
 		kprintf("%d entries deleted from arp cache due to expiry, the cache will be reloaded.\n", deletedArpCount);
 		
-	}	
+	}	*/
 
 	/* See if next hop address is already present in ARP cache */
 

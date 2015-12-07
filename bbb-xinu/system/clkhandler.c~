@@ -63,7 +63,7 @@ void	clkhandler()
 
 	if(count5 == 0)
 	{
-		count5 = 300000;
+		count5000 = 300000;
 		handlearptimeout();
 	}
 

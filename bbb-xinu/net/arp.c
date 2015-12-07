@@ -51,25 +51,6 @@ status	arp_resolve (
 
 	mask = disable();
 
-	int deletedArpCount = 0;
-	int loopCount = 0;
-	// Delete arp cache after 5 minutes
-	for (i=0; i<ARP_SIZ; i++) {
-		arptr = &arpcache[i];
-		if((clktime-arptr->arp_entry_time)>300 && arptr->arstate != AR_FREE)
-		{
-			
-			arptr->arstate = AR_FREE;
-			arptr->arp_entry_time = clktime;
-			deletedArpCount++;
-		}		
-	}
-	
-	if(deletedArpCount > 0)
-	{
-		kprintf("%d entries deleted from arp cache due to expiry, the cache will be reloaded.\n", deletedArpCount);
-		
-	}	
 
 	/* See if next hop address is already present in ARP cache */
 
