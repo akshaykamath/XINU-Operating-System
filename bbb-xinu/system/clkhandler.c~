@@ -17,7 +17,7 @@ int32 i = 0;
 // Delete arp cache after 5 minutes
 	for (i=0; i<ARP_SIZ; i++) {
 		arptr = &arpcache[i];
-		if((clktime-arptr->arp_entry_time) >= 5 && arptr->arstate != AR_FREE)
+		if((clktime-arptr->arp_entry_time) >= 300 && arptr->arstate != AR_FREE)
 		{
 			
 			arptr->arstate = AR_FREE;
@@ -39,7 +39,7 @@ void	clkhandler()
 {
 
 	static uint32 count1000 = 1000;	/* variable to count 1000ms */
-	static uint32 count5 = 300000;
+	static uint32 count5 = 5000;
 	volatile struct am335x_timer1ms *csrptr = 0x44E31000;
 					/* Pointer to timer CSR	    */
 
@@ -59,17 +59,10 @@ void	clkhandler()
 
 	/* After 1 sec, increment clktime */
 
-	count5--;
-
-	if(count5 == 0)
-	{
-		count5000 = 300000;
-		handlearptimeout();
-	}
-
 	if(count1000 == 0) {
 		clktime++;
 		count1000 = 1000;
+		handlearptimeout();
 	}
 
 	/* check if sleep queue is empty */
