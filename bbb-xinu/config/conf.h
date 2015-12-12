@@ -68,7 +68,7 @@ extern	struct	dentry	devtab[]; /* one entry per device */
 
 
 /* Configuration and Size Constants */
-
+#define FS 1
 #define	NPROC	     100	/* number of user processes		*/
 #define	NSEM	     100	/* number of semaphores			*/
 #define	IRQBASE	     32		/* base ivec for IRQ0			*/
