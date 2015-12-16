@@ -20,8 +20,7 @@ void testbitmask(void);
     int rval;
     int fd, i, j;
     char *buf1, *buf2;
-    
-    
+        
     /* Output help, if '--help' argument was supplied */
     if (nargs == 2 && strncmp(args[1], "--help", 7) == 0)
     {
@@ -52,20 +51,20 @@ void testbitmask(void);
 #ifdef FS
 
     bs_mkdev(0, MDEV_BLOCK_SIZE, MDEV_NUM_BLOCKS); /* device "0" and default blocksize (=0) and count */
-    fs_mkfs(0,DEFAULT_NUM_INODES); /* bsdev 0*/
-  //  testbitmask();
- //fs_printfreemask();
+    fs_mkfs(0,DEFAULT_NUM_INODES); /* bsdev 0*/   
     
     buf1 = getmem(SIZE*sizeof(char));
     buf2 = getmem(SIZE*sizeof(char));
     
-   // fs_print_fsd();
-    kprintf("before create");
-   // fs_printfreemask();
+    // fs_print_fsd();
+    kprintf("before create\n");
+
+//    testbitmask();
+   
     // Create test file
     fd = fs_create("Test_File", O_CREAT);
 
-    kprintf("after create");
+    kprintf("after create\n");
    // fs_printfreemask();
     // Fill buffer with random stuff
     for(i=0; i<SIZE; i++)
@@ -78,10 +77,12 @@ void testbitmask(void);
     rval = fs_write(fd,buf1,SIZE);
     if(rval == 0 || rval != SIZE )
     {
-        printf("\n\r File write failed");
+        printf("\n\r File write failed: %d, %d", rval, SIZE);
         goto clean_up;
     }
-
+   
+    printf("File write complete\n");
+  
     // Now my file offset is pointing at EOF file, i need to bring it back to start of file
     // Assuming here implementation of fs_seek is like "original_offset = original_offset + input_offset_from_fs_seek"
     fs_seek(fd,-rval); 
@@ -96,9 +97,11 @@ void testbitmask(void);
         goto clean_up;
     }
         
-    printf("\n\rContent of file %s",buf2);
-    
+    printf("\n\rContent of file %s\n\n",buf2);    
     rval = fs_close(fd);
+
+    testbitmask2();
+
     if(rval != OK)
     {
         printf("\n\rReturn val for fclose : %d",rval);
@@ -115,6 +118,11 @@ clean_up:
     return OK;
 }
 
+void testbitmask2(void)
+{
+// fs_setmaskbit(25);
+fs_printfreemask();
+}
 void
 testbitmask(void) {
 

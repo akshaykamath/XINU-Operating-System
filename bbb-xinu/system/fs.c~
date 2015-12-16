@@ -24,15 +24,11 @@ char block_cache[512];
 #define NUM_FD 16
 struct filetable oft[NUM_FD];
 int next_open_fd = 0;
-//custom
-struct inode blank_inode;
 
-static int next_free_data_block;
-struct filetable * ft_ptr;
-#define INODES_PER_BLOCK (fsd.blocksz / sizeof(struct inode))
-#define NUM_INODE_BLOCKS (( (fsd.ninodes % INODES_PER_BLOCK) == 0) ? fsd.ninodes / INODES_PER_BLOCK : (fsd.ninodes / INODES_PER_BLOCK) + 1)
+#define INODES_PER_BLOCK (fsd.blocksz / sizeof(struct inode)) // 512/ 64 = 8
+#define NUM_INODE_BLOCKS (( (fsd.ninodes % INODES_PER_BLOCK) == 0) ? fsd.ninodes / INODES_PER_BLOCK : (fsd.ninodes / INODES_PER_BLOCK) + 1) // 128 / 8 = 16 blocks
 #define FIRST_INODE_BLOCK 2
-
+#define FIRST_DATA_BLOCK (FIRST_INODE_BLOCK + NUM_INODE_BLOCKS + 1)
 // custom section
 
 // Create a static global inode entry to get the next inode number
@@ -45,8 +41,13 @@ int fs_create(char *filename, int mode)
 {	 
 	struct dirent *fileEntry;
 	struct directory *rootDirectory = &fsd.root_dir;
-	struct filetable *fileTableEntry;	
+	struct filetable *ftEntry;	
 	struct inode in;
+	
+	if(rootDirectory == NULL)
+	{
+		printf("Root Dir is null\n");
+	}
 
 	if (strlen(filename) > FILENAMELEN) 
 	{
@@ -57,7 +58,7 @@ int fs_create(char *filename, int mode)
 	// Only accept create flag 
 	if (mode != O_CREAT)
 	{
-		printf("File flag should be create.\n");
+		printf("File flag should be set to create.\n");
 		return SYSERR;
 	}
 
@@ -91,8 +92,6 @@ int fs_create(char *filename, int mode)
 	fsd.root_dir.entry[fsd.root_dir.numentries].name[FILENAMELEN -1] = '\0'; 
 	fsd.root_dir.entry[fsd.root_dir.numentries].inode_num = -999;	
 	fsd.root_dir.numentries += 1;
-	
-//	printf("file entry name: %s \t copied from : %s\n", fsd.root_dir.entry[fsd.root_dir.numentries-1].name, filename);
 
 	int currentFd = fs_open(fsd.root_dir.entry[fsd.root_dir.numentries-1].name, O_RDWR);
 
@@ -106,7 +105,7 @@ int fs_open(char *filename, int flags)
 {
 	struct dirent *fileEntry;
 	struct directory *rootDirectory = &fsd.root_dir;
-	struct filetable *fileTableEntry;
+	struct filetable *ftEntry;
 	struct inode in;
 
 	// The flag should be a valid flag
@@ -146,25 +145,25 @@ int fs_open(char *filename, int flags)
 	// If there is a chance that the file is in the directory but not in the file table entry (not possible with the given requirements), 
 	// create a new entry or use a closed entry.
 	// we use a flag to identify if the file is in the open file table entry
-	int isPresentFileTableEntry = 0;
+	int isPresentftEntry = 0;
 	for(i = 0; i < NUM_FD; i++)
 	{
- 		fileTableEntry = &oft[i];
-		if(fileTableEntry->in.id == inodeNum)
+ 		ftEntry = &oft[i];
+		if(ftEntry->in.id == inodeNum)
 		{
-			isPresentFileTableEntry = 1;
+			isPresentftEntry = 1;
 			break;
 		}
 	}
 	
 	// If file table entry is not present, check to see if there is a closed file table entry that we can use, else just create a new one.
-	if (isPresentFileTableEntry == 0)
+	if (isPresentftEntry == 0)
 	{
 		int foundUsable = 0;
 		for(i = 0; i < NUM_FD; i++)
 		{
- 			fileTableEntry = &oft[i];
-			if(fileTableEntry->state == FSTATE_CLOSED)
+ 			ftEntry = &oft[i];
+			if(ftEntry->state == FSTATE_CLOSED)
 			{
 				foundUsable = 1;
 				break;
@@ -181,7 +180,7 @@ int fs_open(char *filename, int flags)
 			}
 			
 			// Else, just create a new entry in the file table.
-			fileTableEntry = &oft[next_open_fd];
+			ftEntry = &oft[next_open_fd];
 			next_open_fd += 1;
 		}
 	}
@@ -199,21 +198,21 @@ int fs_open(char *filename, int flags)
 		fileEntry = &rootDirectory->entry[i];
 		if (strncmp(fileEntry->name, filename, FILENAMELEN - 1) == 0)
 		{
-			printf("file entry name: %s\t inode: %d\n", fileEntry->name, fileEntry->inode_num);
+			printf("File: %s\t INODE: %d\n", fileEntry->name, fileEntry->inode_num);
 		}
 	}
 	
 	// Create a new entry in the open file table
-	//fileTableEntry = &oft[next_open_fd];
-	fileTableEntry->state = FSTATE_OPEN;
-	fileTableEntry->file_flag = O_RDWR;
-	fileTableEntry->de = fileEntry;
-	fileTableEntry->in = in;
-	fileTableEntry->in.id = nextInodeEntry;
-	fileTableEntry->in.type = INODE_TYPE_FILE;
-	fileTableEntry->in.nlink = 0;
-	fileTableEntry->in.device = 0;
-	fileTableEntry->in.size = 0;
+	//ftEntry = &oft[next_open_fd];
+	ftEntry->state = FSTATE_OPEN;
+	ftEntry->file_flag = O_RDWR;
+	ftEntry->de = fileEntry;
+	ftEntry->in = in;
+	ftEntry->in.id = nextInodeEntry;
+	ftEntry->in.type = INODE_TYPE_FILE;
+	ftEntry->in.nlink = 0;
+	ftEntry->in.device = 0;
+	ftEntry->in.size = 0;
 
 	int currentFd = next_open_fd;
 	
@@ -222,18 +221,19 @@ int fs_open(char *filename, int flags)
 	nextInodeEntry += 1;	
 
 	// Update the inode entry in the datastore
-	fs_put_inode_by_num(dev0, fileTableEntry->in.id, &fileTableEntry->in);
+	fs_put_inode_by_num(dev0, ftEntry->in.id, &ftEntry->in);	
+
 	// printf("\nFile %s opened successfully.\n",fileEntry->name);
 	return currentFd;
 }
 
 int fs_close(int fd)
 {
-	struct filetable *fileTableEntry = &oft[fd];
-	if(fileTableEntry->state == FSTATE_OPEN) 
+	struct filetable *ftEntry = &oft[fd];
+	if(ftEntry->state == FSTATE_OPEN) 
 	{
 		printf("Closing file table entry %d\n", fd);
-		fileTableEntry->state = FSTATE_CLOSED;
+		ftEntry->state = FSTATE_CLOSED;
 		return OK;
 		
 	}
@@ -244,15 +244,183 @@ int fs_close(int fd)
 
 int fs_seek(int fd, int offset)
 {
+	struct filetable *ftEntry = &oft[fd];
+	printf("________________________seek_______________________\n\n");
+	// Check file is open
+	if(ftEntry->state != FSTATE_OPEN) 
+	{
+		printf("file is not open\n");
+		return SYSERR;	
+	}
+	printf("Pointer before seek: %d\n", ftEntry->fileptr);
+	
+	ftEntry->fileptr = ftEntry->fileptr + offset;
+	printf("Pointer after seek: %d\n", ftEntry->fileptr);
+	printf("________________________seek_______________________\n\n");
 	return 0;
 }
+
 int fs_read(int fd, void *buf, int nbytes)
 {
-	return 0;
+	int bytesToBeTransferred = nbytes;
+	int bytesTransferred = 0;
+	int block;
+	printf("________________________Read_______________________\n\n");
+	// verify arguments
+	struct filetable *ftEntry  = &oft[fd];
+	
+	// Check file 
+	if(ftEntry->state != FSTATE_OPEN) 
+	{
+		printf("file is not open\n");
+		return SYSERR;	
+	}
+
+	// Check file mode
+	if (ftEntry->file_flag != O_RDONLY && ftEntry->file_flag != O_RDWR)
+	{
+		printf("file not open in read mode: %d\n", ftEntry->mode);
+		return SYSERR;			
+	}
+	
+	printf("fileptr in read :%d\n", ftEntry->fileptr);
+	int firstblockPointer = ftEntry->fileptr / MDEV_BLOCK_SIZE;
+	int firstblock = ftEntry->in.blocks[firstblockPointer];
+	int lastblockPointer = ftEntry->in.size / MDEV_BLOCK_SIZE;
+	int lastblock = ftEntry->in.blocks[lastblockPointer];
+	int bytesToRead = 0, bytesRead = 0;
+	int offset = 0;		
+	
+	//printf("First block = %d, Last Block = %d\n", firstblock, lastblock);
+	
+	int i = 0;
+	// Read only through the required block until the last block	
+	for(i = firstblockPointer; i <= lastblockPointer; i++)
+	{
+		block = ftEntry->in.blocks[i];		
+		offset = ftEntry->fileptr % MDEV_BLOCK_SIZE;
+				
+	
+		if(nbytes - bytesRead < MDEV_BLOCK_SIZE)
+		{
+			bytesToRead = nbytes - bytesRead;
+		}
+		else
+		{
+			bytesToRead = MDEV_BLOCK_SIZE - offset;	
+		}
+
+		printf("bytes to read: %d\n", bytesToRead);
+	
+		if (bs_bread(dev0, block, offset, buf, bytesToRead)!=OK) 
+		{
+			printf("block read failed\n");
+			return SYSERR;
+		}		
+		
+		buf = buf + bytesToRead;
+
+		bytesRead += bytesToRead;
+		ftEntry->fileptr = bytesRead;				
+	}
+	printf("\nNumber of Bytes Read %d\n\n", bytesRead);
+
+	printf("________________________Read_______________________\n\n");
+	return bytesRead;	
 }
+
 int fs_write(int fd, void *buf, int nbytes)
 {
-	return 0;
+	int bytesToBeTransferred = nbytes;
+	int bytesTransferred = 0;
+	int block;
+	int offset;
+
+	// verify arguments
+	struct filetable *ftEntry = &oft[fd];
+	
+	// Check file 
+	if(ftEntry->state != FSTATE_OPEN) 
+	{
+		printf("file is not open\n");
+		return SYSERR;	
+	}
+
+	// Check file mode
+	if (ftEntry->file_flag != O_WRONLY && ftEntry->file_flag != O_RDWR)
+	{
+		printf("file not open in write mode: %d\n", ftEntry->mode);
+		return SYSERR;			
+	}	
+	
+	char *buffer = (char*)	buf;
+	// nbytes += 1;		
+	// buffer[nbytes] = '\0';
+
+	// First allocate block locations to the inode
+	int lastdatablockofcurrentinode = FIRST_DATA_BLOCK + ((ftEntry->in.id + 1) * 12);
+	int firstdatablockofcurrentinode = lastdatablockofcurrentinode - 12;
+	int inodeLoop = 0;
+	int counter = 0;
+	void *bytesToFlush;
+	for (inodeLoop = firstdatablockofcurrentinode; inodeLoop < lastdatablockofcurrentinode; inodeLoop++)
+	{
+		ftEntry->in.blocks[counter++] = inodeLoop;
+	}
+
+	// Then start the transfer process
+	int blockSizeRequired = nbytes/MDEV_BLOCK_SIZE;
+	int off = nbytes % MDEV_BLOCK_SIZE;
+	if(off > 0)
+	{
+		blockSizeRequired += 1;
+	}
+	
+	if(blockSizeRequired > INODEBLOCKS)
+	{
+		printf("Block too big\n");
+		return SYSERR;
+	}
+	int i;
+	for(i = 0; i < blockSizeRequired; i++)
+	{
+		// This is the block to be written
+		block = ftEntry->in.blocks[i];
+		// Get the number of bytes that will be transferred now
+
+		if(nbytes > MDEV_BLOCK_SIZE)
+		{
+			bytesToBeTransferred = MDEV_BLOCK_SIZE;
+			nbytes = nbytes - MDEV_BLOCK_SIZE;
+		}
+		else
+		{
+			bytesToBeTransferred = nbytes;
+		}
+
+		bytesToFlush = getmem(bytesToBeTransferred);
+		memcpy(bytesToFlush, buffer + bytesTransferred, bytesToBeTransferred);
+		//printf("\nWriting %s\n", bytesToFlush);		
+		if (bs_bwrite(dev0, block, 0, bytesToFlush, bytesToBeTransferred)!=OK) 
+		{
+			printf("block write failed\n");
+			return SYSERR;
+		}
+		
+		bytesTransferred += bytesToBeTransferred;
+		ftEntry->fileptr = bytesTransferred;
+		// printf("Updated block %d\n", block);
+		fs_setmaskbit(block);
+	}
+	
+	//memcpy(bytesToFlush, buffer + bytesTransferred, bytesToBeTransferred);
+
+	ftEntry->in.size = ftEntry->fileptr;	
+	printf("Bytes written count: %d\n", ftEntry->fileptr);
+	printf("Bytes written : %s\n", buf);
+
+	fs_put_inode_by_num(dev0, ftEntry->in.id, &ftEntry->in);
+	return bytesTransferred;	
 }
 
 int fs_fileblock_to_diskblock(int dev, int fd, int fileblock) {
@@ -347,8 +515,13 @@ int fs_mkfs(int dev, int num_inodes) {
     fsd.ninodes = num_inodes;
   }
 
+  // Store i = 512
   i = fsd.nblocks;
+  
+  // Round it off.
   while ( (i % 8) != 0) {i++;}
+
+  // Freemaskbytes = 512/ 8 = 64 bytes. Hence there are 512 bits. Each one of the 64 bytes is a mask that will be set.
   fsd.freemaskbytes = i / 8; 
   
   if ((fsd.freemask = getmem(fsd.freemaskbytes)) == (void *)SYSERR) {
@@ -370,7 +543,7 @@ int fs_mkfs(int dev, int num_inodes) {
   /* write the free block bitmask in BM_BLK, mark block used */
   fs_setmaskbit(BM_BLK);
   bs_bwrite(dev0, BM_BLK, 0, fsd.freemask, fsd.freemaskbytes);
-
+  printf("Size of file system: %d\n", sizeof(struct fsystem));
   return 1;
 }
 
@@ -381,6 +554,7 @@ fs_print_fsd(void) {
   printf("sizeof(struct inode): %d\n", sizeof(struct inode));
   printf("INODES_PER_BLOCK: %d\n", INODES_PER_BLOCK);
   printf("NUM_INODE_BLOCKS: %d\n", NUM_INODE_BLOCKS);
+  printf("FIRST DATA BLOCK: %D\n",FIRST_DATA_BLOCK);
 }
 
 /* specify the block number to be set in the mask */

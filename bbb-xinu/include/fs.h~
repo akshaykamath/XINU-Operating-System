@@ -37,8 +37,9 @@ struct filetable {
   int state;
   int fileptr;
   int file_flag;
-  struct dirent *de;
  int mode;
+  struct dirent *de;
+
   struct inode in;
 };
 
