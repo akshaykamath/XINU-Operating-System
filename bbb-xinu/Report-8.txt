@@ -1,0 +1,52 @@
+Include a description of the implementation, lessons learned and team contributions.
+
+Description of Implementation:
+1. Implemented fs_create, fs_open, fs_seek, fs_read, fs_write functions
+
+fs_create:
+1. To support file modes, added a entry mode to struct filetable.
+2. Added file name to directory entry and set the count to 0.
+
+fs_open:
+1. Validation checks
+2.Create an entry in the open file table and return the index as fd
+3. Create an inode entry in the file table ref and store the inode ref to the inode block
+
+fs_write:
+1. Validations
+2. Initialise the inode blocks with the right offset (after the data blocks, in multiple of 12)
+3. Store the block numbers in the inode blocks
+4. Write the file contents to the memory, block by block.
+5. Update the file pointer in the file table entry to number of blocks written
+
+fs_seek:
+1. Validations
+2. Update the file pointer entry as file pointer entry+=newpoint
+
+fs_read
+1. Validations
+2. get entry from open file table
+3. calculate the first and last block ponters of the file from the blocks in inode struct.
+4. Iterate through each block pointer and read block by block int buf until nbyte entries are read
+
+fs_close
+1. Check if file open in oft.
+2. set the file state to closed, return error if file not open.
+
+Lessons learned:
+Learned the structure of file systems using inodes,
+-how level file system operations are implemented internally.
+-about direct and indirect file referencing in the data block,
+-Working with an in memory file system.
+
+Contributions:
+Akshay Kamath
+Implemented fs_create, 
+Implemented fs_write, 
+Implemented fs_read
+
+Sameedha Bairagi
+Implemented fs_open
+Implemented fs_seek
+Implemented fs_close
+
